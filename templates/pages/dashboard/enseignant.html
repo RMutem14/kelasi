@@ -1,0 +1,109 @@
+{% extends "layouts/dashboard.html" %}
+{% load huduma_tags %}
+
+{% block content %}
+
+  {# Stats cards #}
+  <section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5 mb-8">
+    {% for stat in stats_cards %}
+      {% include "components/cards/stats_card.html" with label=stat.label value=stat.value icon=stat.icon color=stat.color footer=stat.footer %}
+    {% endfor %}
+  </section>
+
+  {# Deux espaces : travail pédagogique + boutique #}
+  <section class="grid grid-cols-1 xl:grid-cols-2 gap-8">
+
+    {# Espace pédagogique #}
+    <div class="bg-white rounded-[28px] border border-slate-200 p-6 shadow-sm">
+      <div class="flex items-center gap-3 mb-6">
+        <div class="w-11 h-11 rounded-2xl bg-indigo-50 flex items-center justify-center">
+          <i data-lucide="file-text" class="w-6 h-6 text-indigo-600"></i>
+        </div>
+        <div>
+          <h3 class="text-xl font-extrabold text-slate-900">Mon travail pédagogique</h3>
+          <p class="text-sm text-slate-500">Documents soumis au Directeur des études</p>
+        </div>
+      </div>
+
+      <div class="space-y-3">
+        <a href="{% url 'pedagogy:document_list' %}" class="flex items-center gap-3 px-4 py-3 rounded-2xl bg-slate-50 hover:bg-slate-100 transition-colors">
+          <i data-lucide="file-text" class="w-5 h-5 text-indigo-600"></i>
+          <div class="flex-1">
+            <p class="font-bold text-sm text-slate-900">Fiches de préparation</p>
+            <p class="text-xs text-slate-500">3 brouillons · 2 soumis</p>
+          </div>
+          <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
+        </a>
+        <a href="{% url 'pedagogy:document_list' %}?type=journal_classe" class="flex items-center gap-3 px-4 py-3 rounded-2xl bg-slate-50 hover:bg-slate-100 transition-colors">
+          <i data-lucide="calendar-days" class="w-5 h-5 text-indigo-600"></i>
+          <div class="flex-1">
+            <p class="font-bold text-sm text-slate-900">Journal de classe</p>
+            <p class="text-xs text-slate-500">À jour</p>
+          </div>
+          <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
+        </a>
+        <a href="{% url 'pedagogy:document_list' %}?type=cahier_cotes" class="flex items-center gap-3 px-4 py-3 rounded-2xl bg-slate-50 hover:bg-slate-100 transition-colors">
+          <i data-lucide="clipboard-list" class="w-5 h-5 text-indigo-600"></i>
+          <div class="flex-1">
+            <p class="font-bold text-sm text-slate-900">Cahier des cotes</p>
+            <p class="text-xs text-slate-500">5ème A · 6ème A</p>
+          </div>
+          <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
+        </a>
+        <a href="{% url 'pedagogy:document_list' %}?type=cahier_composition" class="flex items-center gap-3 px-4 py-3 rounded-2xl bg-slate-50 hover:bg-slate-100 transition-colors">
+          <i data-lucide="file-pen-line" class="w-5 h-5 text-indigo-600"></i>
+          <div class="flex-1">
+            <p class="font-bold text-sm text-slate-900">Compositions</p>
+            <p class="text-xs text-slate-500">2 à venir</p>
+          </div>
+          <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
+        </a>
+      </div>
+    </div>
+
+    {# Espace boutique #}
+    <div class="bg-white rounded-[28px] border border-slate-200 p-6 shadow-sm">
+      <div class="flex items-center gap-3 mb-6">
+        <div class="w-11 h-11 rounded-2xl bg-emerald-50 flex items-center justify-center">
+          <i data-lucide="store" class="w-6 h-6 text-emerald-600"></i>
+        </div>
+        <div>
+          <h3 class="text-xl font-extrabold text-slate-900">Ma boutique</h3>
+          <p class="text-sm text-slate-500">Ressources commercialisables</p>
+        </div>
+      </div>
+
+      <div class="space-y-3">
+        <a href="{% url 'marketplace:my_resources' %}" class="flex items-center gap-3 px-4 py-3 rounded-2xl bg-slate-50 hover:bg-slate-100 transition-colors">
+          <i data-lucide="book-marked" class="w-5 h-5 text-emerald-600"></i>
+          <div class="flex-1">
+            <p class="font-bold text-sm text-slate-900">Mes syllabus</p>
+            <p class="text-xs text-slate-500">5 publiés</p>
+          </div>
+          <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
+        </a>
+        <a href="{% url 'marketplace:my_sales' %}" class="flex items-center gap-3 px-4 py-3 rounded-2xl bg-slate-50 hover:bg-slate-100 transition-colors">
+          <i data-lucide="trending-up" class="w-5 h-5 text-emerald-600"></i>
+          <div class="flex-1">
+            <p class="font-bold text-sm text-slate-900">Mes ventes</p>
+            <p class="text-xs text-slate-500">12 ce mois · 240 $</p>
+          </div>
+          <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
+        </a>
+        <a href="{% url 'marketplace:my_purchases' %}" class="flex items-center gap-3 px-4 py-3 rounded-2xl bg-slate-50 hover:bg-slate-100 transition-colors">
+          <i data-lucide="shopping-bag" class="w-5 h-5 text-emerald-600"></i>
+          <div class="flex-1">
+            <p class="font-bold text-sm text-slate-900">Mes achats</p>
+            <p class="text-xs text-slate-500">3 ressources</p>
+          </div>
+          <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
+        </a>
+        <button class="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-2xl bg-emerald-600 text-white font-bold hover:bg-emerald-700 transition-colors mt-2">
+          <i data-lucide="plus" class="w-5 h-5"></i>
+          Publier un syllabus
+        </button>
+      </div>
+    </div>
+  </section>
+
+{% endblock %}

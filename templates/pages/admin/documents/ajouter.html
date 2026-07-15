@@ -1,0 +1,153 @@
+{% extends "layouts/dashboard.html" %}
+{% load huduma_tags %}
+{% load static %}
+
+{% block content %}
+
+  <section class="mb-8">
+    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 font-semibold text-xs mb-4">
+      <i data-lucide="sparkles" class="w-3 h-3"></i>
+      {% if doc %}Modifier le document{% else %}Nouveau document{% endif %}
+    </span>
+    <p class="text-sm text-slate-500 max-w-2xl">
+      Renseignez le type, la classe et le cours associés au document.
+      Vous pouvez l'enregistrer comme brouillon ou le soumettre directement au directeur des études.
+    </p>
+  </section>
+
+  <form method="post" {% if doc %}action="{% url 'pedagogy:document_edit' doc.pk %}"{% else %}action="{% url 'pedagogy:document_add' %}"{% endif %} enctype="multipart/form-data" class="space-y-8">
+    {% csrf_token %}
+
+    <section class="bg-white border border-slate-200 rounded-[28px] shadow-sm overflow-hidden">
+      <div class="px-7 py-5 border-b border-slate-100 flex items-center gap-3">
+        <div class="w-10 h-10 rounded-2xl bg-indigo-50 flex items-center justify-center">
+          <i data-lucide="file-text" class="w-5 h-5 text-indigo-600"></i>
+        </div>
+        <div>
+          <h3 class="text-lg font-extrabold text-slate-900">Informations du document</h3>
+          <p class="text-sm text-slate-500">Identité et affectation pédagogique.</p>
+        </div>
+      </div>
+
+      <div class="p-7 grid grid-cols-1 md:grid-cols-2 gap-5">
+
+        <div class="md:col-span-2">
+          <label for="titre" class="block text-sm font-semibold text-slate-700 mb-2">
+            Titre <span class="text-red-500">*</span>
+          </label>
+          <div class="relative">
+            <i data-lucide="type" class="w-5 h-5 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+            <input type="text" name="titre" id="titre" required
+              value="{% if doc %}{{ doc.titre }}{% endif %}"
+              placeholder="Ex : Fiche de préparation — Chapitre 1 : Les fractions"
+              class="w-full h-12 pl-12 pr-4 rounded-2xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 outline-none transition-all text-slate-900 placeholder:text-slate-400">
+          </div>
+        </div>
+
+        <div>
+          <label for="type" class="block text-sm font-semibold text-slate-700 mb-2">
+            Type <span class="text-red-500">*</span>
+          </label>
+          <div class="relative">
+            <i data-lucide="file-stack" class="w-5 h-5 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none z-10"></i>
+            <select name="type" id="type" required
+              class="w-full h-12 pl-12 pr-10 rounded-2xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 outline-none transition-all text-slate-900 appearance-none cursor-pointer">
+              {% for value, label in type_choices %}
+                <option value="{{ value }}" {% if doc and doc.type == value %}selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+            </select>
+            <i data-lucide="chevron-down" class="w-5 h-5 text-slate-400 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+          </div>
+        </div>
+
+        <div>
+          <label for="classe" class="block text-sm font-semibold text-slate-700 mb-2">
+            Classe <span class="text-red-500">*</span>
+          </label>
+          <div class="relative">
+            <i data-lucide="school" class="w-5 h-5 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none z-10"></i>
+            <select name="classe" id="classe" required
+              class="w-full h-12 pl-12 pr-10 rounded-2xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 outline-none transition-all text-slate-900 appearance-none cursor-pointer">
+              <option value="" disabled>Sélectionner une classe</option>
+              {% for classe in classes %}
+                <option value="{{ classe.pk }}" {% if doc and doc.classe_id == classe.pk %}selected{% endif %}>{{ classe.nom }} — {{ classe.get_niveau_display }}</option>
+              {% endfor %}
+            </select>
+            <i data-lucide="chevron-down" class="w-5 h-5 text-slate-400 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+          </div>
+        </div>
+
+        <div class="md:col-span-2">
+          <label for="cours" class="block text-sm font-semibold text-slate-700 mb-2">
+            Cours <span class="text-red-500">*</span>
+          </label>
+          <div class="relative">
+            <i data-lucide="book-open" class="w-5 h-5 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none z-10"></i>
+            <select name="cours" id="cours" required
+              class="w-full h-12 pl-12 pr-10 rounded-2xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 outline-none transition-all text-slate-900 appearance-none cursor-pointer">
+              <option value="" disabled>Sélectionner un cours</option>
+              {% for cours in cours_list %}
+                <option value="{{ cours.pk }}" {% if doc and doc.cours_id == cours.pk %}selected{% endif %}>{{ cours.nom }} ({{ cours.code }}) — {{ cours.classe.nom }}</option>
+              {% endfor %}
+            </select>
+            <i data-lucide="chevron-down" class="w-5 h-5 text-slate-400 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+          </div>
+        </div>
+
+        {# Upload de fichier #}
+        <div class="md:col-span-2">
+          <label for="fichier" class="block text-sm font-semibold text-slate-700 mb-2">
+            Fichier (PDF ou DOCX)
+          </label>
+          <div class="relative border-2 border-dashed border-slate-200 rounded-2xl p-6 hover:border-indigo-300 transition-colors">
+            <input type="file" name="fichier" id="fichier" accept=".pdf,.docx,.doc"
+              class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-indigo-50 file:text-indigo-600 file:font-bold file:cursor-pointer hover:file:bg-indigo-100">
+            {% if doc.fichier %}
+              <div class="mt-3 flex items-center gap-2 text-sm text-slate-600">
+                <i data-lucide="file-check" class="w-4 h-4 text-emerald-500"></i>
+                Fichier actuel : <a href="{{ doc.fichier.url }}" target="_blank" class="text-indigo-600 font-semibold hover:underline">{{ doc.fichier.name|slice:"30:" }}</a>
+                <span class="text-slate-400">(laisser vide pour conserver)</span>
+              </div>
+            {% else %}
+              <p class="mt-2 text-xs text-slate-400">Optionnel — le fichier peut être ajouté plus tard.</p>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="md:col-span-2">
+          <label for="description" class="block text-sm font-semibold text-slate-700 mb-2">
+            Description
+          </label>
+          <textarea name="description" id="description" rows="5"
+            placeholder="Décrivez le contenu, les objectifs et les attendus du document..."
+            class="w-full px-4 py-3 rounded-2xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 outline-none transition-all text-slate-900 placeholder:text-slate-400 resize-none">{% if doc %}{{ doc.description }}{% endif %}</textarea>
+        </div>
+
+      </div>
+    </section>
+
+    <div class="flex flex-col-reverse sm:flex-row items-center justify-end gap-3 pt-2">
+      <a href="{% url 'pedagogy:document_list' %}"
+         class="w-full sm:w-auto h-12 px-6 rounded-2xl border border-slate-200 bg-white text-slate-700 font-bold hover:bg-slate-50 transition-colors flex items-center justify-center gap-2">
+        <i data-lucide="x" class="w-4 h-4"></i>
+        Annuler
+      </a>
+      <button type="submit" name="action" value="save_draft"
+        class="w-full sm:w-auto h-12 px-6 rounded-2xl border border-slate-200 bg-white text-slate-700 font-bold hover:bg-slate-50 transition-colors flex items-center justify-center gap-2">
+        <i data-lucide="file-edit" class="w-4 h-4"></i>
+        Enregistrer comme brouillon
+      </button>
+      <button type="submit" name="action" value="submit"
+        class="w-full sm:w-auto h-12 px-6 rounded-2xl bg-indigo-600 text-white font-bold shadow-indigo-glow hover:bg-indigo-700 transition-colors flex items-center justify-center gap-2">
+        <i data-lucide="send" class="w-4 h-4"></i>
+        Soumettre au directeur
+      </button>
+    </div>
+
+  </form>
+
+{% endblock %}
+
+{% block extra_scripts %}
+  <script>lucide.createIcons();</script>
+{% endblock %}

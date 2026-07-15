@@ -1,0 +1,231 @@
+{% extends "layouts/dashboard.html" %}
+{% load huduma_tags %}
+{% load static %}
+
+{% block content %}
+
+  {# ============================================================ #}
+  {# En-tête #}
+  {# ============================================================ #}
+  <section class="mb-8">
+    <h1 class="text-3xl font-extrabold text-kelasi-ink tracking-tight">
+      {{ page_title|default:"Demander un retrait" }}
+    </h1>
+    <p class="text-sm text-slate-500 mt-1.5 max-w-2xl">
+      {{ page_subtitle|default:"Transférez le solde de votre portefeuille vers votre compte mobile money." }}
+    </p>
+  </section>
+
+  {# ============================================================ #}
+  {# Formulaire de retrait (centré, max-width 700px) #}
+  {# ============================================================ #}
+  <section class="max-w-3xl mx-auto" x-data="{ operateur: '', choix: 'compte' }">
+
+    {# Récap solde #}
+    <div class="bg-gradient-to-br from-indigo-600 to-indigo-800 rounded-[28px] p-6 shadow-indigo-glow text-white mb-6 flex items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <span class="w-12 h-12 rounded-2xl bg-white/15 flex items-center justify-center">
+          <i data-lucide="wallet" class="w-6 h-6"></i>
+        </span>
+        <div>
+          <p class="text-indigo-200 text-xs font-medium">Solde disponible</p>
+          <p class="text-2xl font-extrabold">{{ wallet.solde|floatformat:2 }} $</p>
+        </div>
+      </div>
+      <a href="{% url 'marketplace:wallet' %}"
+         class="text-xs font-bold text-white/90 hover:text-white inline-flex items-center gap-1.5 bg-white/10 px-3 py-2 rounded-xl border border-white/20">
+        <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+        Retour au portefeuille
+      </a>
+    </div>
+
+    <form method="post" action="{% url 'marketplace:withdrawal_request' %}"
+          class="bg-white border border-slate-200 rounded-[28px] shadow-sm p-7 sm:p-9 space-y-7">
+      {% csrf_token %}
+
+      {# --- Montant --- #}
+      <div>
+        <label for="id_montant" class="block text-sm font-bold text-slate-900 mb-2">
+          Montant à retirer <span class="text-rose-500">*</span>
+        </label>
+        <div class="relative">
+          <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400 pointer-events-none">
+            <i data-lucide="dollar-sign" class="w-5 h-5"></i>
+          </span>
+          <input type="number"
+                 name="montant"
+                 id="id_montant"
+                 step="0.01"
+                 min="0.01"
+                 max="{{ wallet.solde }}"
+                 required
+                 placeholder="0.00"
+                 class="w-full pl-12 pr-4 py-3.5 rounded-2xl border border-slate-200 bg-slate-50 text-lg font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition">
+        </div>
+        <p class="text-xs text-slate-500 mt-2 flex items-center gap-1.5">
+          <i data-lucide="info" class="w-3.5 h-3.5"></i>
+          Solde disponible : <span class="font-bold text-indigo-600">{{ wallet.solde|floatformat:2 }} $</span>
+        </p>
+      </div>
+
+      {# --- Opérateur (3 cartes radio) --- #}
+      <div>
+        <label class="block text-sm font-bold text-slate-900 mb-3">
+          Opérateur mobile money <span class="text-rose-500">*</span>
+        </label>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+
+          {# Orange Money #}
+          <label class="cursor-pointer">
+            <input type="radio" name="operateur" value="orange" class="sr-only" x-model="operateur" required>
+            <div class="border-2 border-slate-200 rounded-2xl p-4 transition-all hover:border-orange-300"
+                 :class="{ 'border-orange-500 bg-orange-50 ring-2 ring-orange-200': operateur === 'orange' }">
+              <div class="flex items-center gap-3">
+                <span class="w-10 h-10 rounded-xl bg-orange-100 text-orange-600 flex items-center justify-center flex-shrink-0">
+                  <i data-lucide="smartphone" class="w-5 h-5"></i>
+                </span>
+                <div class="min-w-0">
+                  <p class="font-bold text-slate-900 text-sm">Orange Money</p>
+                  <p class="text-xs text-slate-500 truncate">Orange RDC</p>
+                </div>
+              </div>
+            </div>
+          </label>
+
+          {# Airtel Money #}
+          <label class="cursor-pointer">
+            <input type="radio" name="operateur" value="airtel" class="sr-only" x-model="operateur" required>
+            <div class="border-2 border-slate-200 rounded-2xl p-4 transition-all hover:border-rose-300"
+                 :class="{ 'border-rose-500 bg-rose-50 ring-2 ring-rose-200': operateur === 'airtel' }">
+              <div class="flex items-center gap-3">
+                <span class="w-10 h-10 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center flex-shrink-0">
+                  <i data-lucide="smartphone" class="w-5 h-5"></i>
+                </span>
+                <div class="min-w-0">
+                  <p class="font-bold text-slate-900 text-sm">Airtel Money</p>
+                  <p class="text-xs text-slate-500 truncate">Airtel RDC</p>
+                </div>
+              </div>
+            </div>
+          </label>
+
+          {# Vodacom M-Pesa #}
+          <label class="cursor-pointer">
+            <input type="radio" name="operateur" value="vodacom" class="sr-only" x-model="operateur" required>
+            <div class="border-2 border-slate-200 rounded-2xl p-4 transition-all hover:border-sky-300"
+                 :class="{ 'border-sky-500 bg-sky-50 ring-2 ring-sky-200': operateur === 'vodacom' }">
+              <div class="flex items-center gap-3">
+                <span class="w-10 h-10 rounded-xl bg-sky-100 text-sky-600 flex items-center justify-center flex-shrink-0">
+                  <i data-lucide="smartphone" class="w-5 h-5"></i>
+                </span>
+                <div class="min-w-0">
+                  <p class="font-bold text-slate-900 text-sm">Vodacom M-Pesa</p>
+                  <p class="text-xs text-slate-500 truncate">Vodacom RDC</p>
+                </div>
+              </div>
+            </div>
+          </label>
+
+        </div>
+      </div>
+
+      {# --- Numéro de téléphone (toggle Alpine) --- #}
+      <div>
+        <label class="block text-sm font-bold text-slate-900 mb-3">
+          Numéro de téléphone <span class="text-rose-500">*</span>
+        </label>
+
+        {# Options du choix #}
+        <div class="space-y-2.5 mb-4">
+          <label class="cursor-pointer flex items-start gap-3 p-3.5 rounded-2xl border-2 border-slate-200 transition-all hover:border-indigo-200"
+                 :class="{ 'border-indigo-500 bg-indigo-50': choix === 'compte' }">
+            <input type="radio" name="choix_numero" value="compte" class="mt-0.5 text-indigo-600 focus:ring-indigo-500" x-model="choix">
+            <div class="min-w-0 flex-1">
+              <p class="font-bold text-slate-900 text-sm">Utiliser le numéro de mon compte</p>
+              <p class="text-xs text-slate-500 mt-0.5">
+                {% if request.user.phone %}
+                  {{ request.user.phone }}
+                {% else %}
+                  <span class="text-amber-600 font-semibold">Non renseigné</span>
+                {% endif %}
+              </p>
+            </div>
+          </label>
+
+          <label class="cursor-pointer flex items-start gap-3 p-3.5 rounded-2xl border-2 border-slate-200 transition-all hover:border-indigo-200"
+                 :class="{ 'border-indigo-500 bg-indigo-50': choix === 'autre' }">
+            <input type="radio" name="choix_numero" value="autre" class="mt-0.5 text-indigo-600 focus:ring-indigo-500" x-model="choix">
+            <div class="min-w-0 flex-1">
+              <p class="font-bold text-slate-900 text-sm">Autre numéro</p>
+              <p class="text-xs text-slate-500 mt-0.5">Saisissez un numéro mobile money différent</p>
+            </div>
+          </label>
+        </div>
+
+        {# Champ de saisie (visible si "autre") #}
+        <div x-show="choix === 'autre'" x-cloak x-transition>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400 pointer-events-none">
+              <i data-lucide="phone" class="w-5 h-5"></i>
+            </span>
+            <input type="tel"
+                   name="numero_telephone"
+                   id="id_numero_telephone"
+                   pattern="[0-9+\s\-]{8,}"
+                   placeholder="Ex : +243 8xx xxx xxx"
+                   class="w-full pl-12 pr-4 py-3.5 rounded-2xl border border-slate-200 bg-slate-50 text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition">
+          </div>
+          <p class="text-xs text-slate-500 mt-2">
+            Saisissez le numéro au format international ou local.
+          </p>
+        </div>
+
+        {# Si choix = compte, on transmet quand même le numéro caché #}
+        <div x-show="choix === 'compte'" x-cloak>
+          <input type="hidden" name="numero_telephone" value="{{ request.user.phone|default:'' }}">
+          {% if not request.user.phone %}
+            <div class="flex items-start gap-2 p-3 rounded-xl bg-amber-50 border border-amber-200">
+              <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5"></i>
+              <p class="text-xs text-amber-800">
+                Aucun numéro n'est renseigné sur votre compte. Veuillez choisir « Autre numéro » pour continuer.
+              </p>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+
+      {# --- Callout d'avertissement --- #}
+      <div class="flex items-start gap-3 p-4 rounded-2xl bg-amber-50 border border-amber-200">
+        <span class="w-8 h-8 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center flex-shrink-0">
+          <i data-lucide="alert-triangle" class="w-4 h-4"></i>
+        </span>
+        <div>
+          <p class="text-sm font-bold text-amber-900">À noter avant de confirmer</p>
+          <p class="text-xs text-amber-800 mt-0.5">
+            ⚠️ Le montant sera débité de votre portefeuille dès la soumission. Vous serez notifié du traitement.
+          </p>
+        </div>
+      </div>
+
+      {# --- Actions --- #}
+      <div class="flex flex-col sm:flex-row gap-3 pt-2">
+        <button type="submit"
+                class="flex-1 inline-flex items-center justify-center gap-2 bg-indigo-600 text-white px-6 py-3.5 rounded-2xl font-bold text-sm hover:bg-indigo-700 shadow-indigo-glow transition-colors">
+          <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+          Confirmer la demande
+        </button>
+        <a href="{% url 'marketplace:wallet' %}"
+           class="inline-flex items-center justify-center gap-2 bg-white text-slate-700 border border-slate-200 px-6 py-3.5 rounded-2xl font-bold text-sm hover:bg-slate-50 transition-colors">
+          <i data-lucide="x" class="w-4 h-4"></i>
+          Annuler
+        </a>
+      </div>
+
+    </form>
+  </section>
+
+{% endblock %}
+
+{% block extra_scripts %}
+  <script>lucide.createIcons();</script>
+{% endblock %}

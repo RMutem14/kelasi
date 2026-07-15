@@ -1,0 +1,176 @@
+{# Partielle HTMX — modale de détail d'un document pédagogique #}
+{# Injectée dans #modal-container via hx-get sur la page de liste #}
+{% load huduma_tags %}
+
+<div
+  x-data="{ open: true }"
+  x-show="open"
+  x-cloak
+  @keydown.escape.window="open = false; $nextTick(() => { document.getElementById('modal-container').innerHTML = ''; })"
+  class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 backdrop-blur-sm px-4 py-6"
+>
+  <div
+    @click.outside="open = false; $nextTick(() => { document.getElementById('modal-container').innerHTML = ''; })"
+    x-transition:enter="transition ease-out duration-200"
+    x-transition:enter-start="opacity-0 scale-95 translate-y-4"
+    x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+    x-transition:leave="transition ease-in duration-150"
+    x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+    x-transition:leave-end="opacity-0 scale-95 translate-y-4"
+    class="w-full max-w-2xl bg-white rounded-[28px] shadow-2xl border border-slate-200 overflow-hidden max-h-[90vh] flex flex-col"
+  >
+    <div class="flex items-center justify-between px-7 py-6 border-b border-slate-200 flex-shrink-0">
+      <div class="flex items-center gap-3">
+        <div class="w-11 h-11 rounded-2xl bg-indigo-50 flex items-center justify-center">
+          <i data-lucide="file-text" class="w-5 h-5 text-indigo-600"></i>
+        </div>
+        <div>
+          <p class="text-sm font-semibold text-indigo-600 mb-0.5">Document pédagogique</p>
+          <h2 class="text-2xl font-extrabold tracking-[-0.03em] text-slate-950 truncate max-w-[28rem]">
+            {{ doc.titre }}
+          </h2>
+        </div>
+      </div>
+      <button
+        type="button"
+        onclick="document.getElementById('modal-container').innerHTML=''"
+        class="w-10 h-10 rounded-2xl bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors flex-shrink-0"
+        aria-label="Fermer"
+      >
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+    </div>
+
+    <div class="p-7 overflow-y-auto flex-1">
+      <div class="flex items-center gap-4 mb-7">
+        <div class="w-16 h-16 rounded-2xl bg-indigo-100 text-indigo-700 flex items-center justify-center flex-shrink-0">
+          <i data-lucide="file-text" class="w-8 h-8"></i>
+        </div>
+        <div class="min-w-0 flex-1">
+          <h3 class="text-xl font-extrabold text-slate-950 truncate">{{ doc.titre }}</h3>
+          <p class="text-slate-500 truncate">
+            <span class="font-semibold text-slate-600">{{ doc.get_type_display }}</span>
+            <span class="mx-1.5 text-slate-300">•</span>
+            <span class="font-mono">{{ doc.code }}</span>
+          </p>
+        </div>
+        <span class="flex-shrink-0">
+          {% include "components/feedback/status_badge.html" with status=doc.statut %}
+        </span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <div class="p-4 rounded-2xl bg-slate-50 border border-slate-100">
+          <p class="text-xs font-bold text-slate-400 uppercase mb-1">Type</p>
+          <p class="font-bold text-slate-900">{{ doc.get_type_display }}</p>
+        </div>
+        <div class="p-4 rounded-2xl bg-slate-50 border border-slate-100">
+          <p class="text-xs font-bold text-slate-400 uppercase mb-1">Auteur</p>
+          <p class="font-bold text-slate-900 truncate">{{ doc.auteur.full_name }}</p>
+        </div>
+        <div class="p-4 rounded-2xl bg-slate-50 border border-slate-100">
+          <p class="text-xs font-bold text-slate-400 uppercase mb-1">Classe</p>
+          <p class="font-bold text-slate-900">{{ doc.classe.nom }}</p>
+        </div>
+        <div class="p-4 rounded-2xl bg-slate-50 border border-slate-100">
+          <p class="text-xs font-bold text-slate-400 uppercase mb-1">Cours</p>
+          <p class="font-bold text-slate-900 truncate">{{ doc.cours.nom }}</p>
+        </div>
+      </div>
+
+      {# Fichier attaché #}
+      {% if doc.fichier %}
+        <div class="p-4 rounded-2xl bg-indigo-50 border border-indigo-100 mb-6">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-indigo-100 flex items-center justify-center">
+                <i data-lucide="file-check" class="w-5 h-5 text-indigo-600"></i>
+              </div>
+              <div>
+                <p class="text-xs font-bold text-indigo-400 uppercase mb-0.5">Fichier attaché</p>
+                <p class="font-bold text-slate-900 text-sm">{{ doc.fichier.name|slice:"31:" }}</p>
+              </div>
+            </div>
+            <a href="{{ doc.fichier.url }}" target="_blank"
+               class="h-10 px-4 rounded-xl bg-indigo-600 text-white font-bold text-sm hover:bg-indigo-700 flex items-center gap-2 transition-colors">
+              <i data-lucide="download" class="w-4 h-4"></i>
+              Télécharger
+            </a>
+          </div>
+        </div>
+      {% endif %}
+
+      {# Description #}
+      <div class="p-4 rounded-2xl bg-slate-50 border border-slate-100 mb-6">
+        <p class="text-xs font-bold text-slate-400 uppercase mb-2">Description</p>
+        <p class="text-sm text-slate-700 leading-relaxed whitespace-pre-line">
+          {% if doc.description %}{{ doc.description }}{% else %}<span class="text-slate-400 italic">Aucune description fournie.</span>{% endif %}
+        </p>
+      </div>
+
+      {# Observation du directeur #}
+      {% if doc.observation_directeur %}
+        <div class="p-4 rounded-2xl bg-amber-50 border border-amber-100 mb-6">
+          <div class="flex items-center gap-2 mb-2">
+            <i data-lucide="message-square-warning" class="w-4 h-4 text-amber-600"></i>
+            <p class="text-xs font-bold text-amber-700 uppercase">Observation du directeur</p>
+          </div>
+          <p class="text-sm text-amber-900 leading-relaxed whitespace-pre-line">{{ doc.observation_directeur }}</p>
+        </div>
+      {% endif %}
+
+      {# Historique de validation #}
+      {% if historique %}
+        <div class="mb-2">
+          <div class="flex items-center gap-2 mb-3">
+            <i data-lucide="history" class="w-4 h-4 text-slate-500"></i>
+            <p class="text-xs font-bold text-slate-500 uppercase">Historique de validation</p>
+          </div>
+          <div class="space-y-3">
+            {% for h in historique %}
+              <div class="flex items-start gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
+                <div class="w-8 h-8 rounded-lg {% if h.action == 'valide' %}bg-emerald-50 text-emerald-600{% elif h.action == 'rejete' %}bg-red-50 text-red-500{% elif h.action == 'correction' %}bg-amber-50 text-amber-600{% else %}bg-sky-50 text-sky-600{% endif %} flex items-center justify-center flex-shrink-0">
+                  <i data-lucide="{% if h.action == 'valide' %}check{% elif h.action == 'rejete' %}x{% elif h.action == 'correction' %}rotate-ccw{% else %}send{% endif %}" class="w-4 h-4"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm font-bold text-slate-900">{{ h.get_action_display }}</p>
+                  <p class="text-xs text-slate-500">par {{ h.action_par.full_name }} — {{ h.created_at|date:"d/m/Y à H:i" }}</p>
+                  {% if h.commentaire %}
+                    <p class="text-sm text-slate-600 mt-1">{{ h.commentaire }}</p>
+                  {% endif %}
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="flex items-center justify-end gap-3 px-7 py-5 bg-slate-50 border-t border-slate-200 flex-shrink-0">
+      <button type="button" onclick="document.getElementById('modal-container').innerHTML=''"
+        class="h-11 px-5 rounded-xl border border-slate-200 bg-white text-slate-700 font-bold hover:bg-slate-50 transition-colors">
+        Fermer
+      </button>
+      {% if request.user.role == 'admin' or request.user.role == 'enseignant' and doc.auteur == request.user %}
+        {% if doc.statut != 'valide' %}
+          <a href="{% url 'pedagogy:document_edit' doc.pk %}"
+             class="h-11 px-5 rounded-xl bg-indigo-700 text-white font-bold hover:bg-indigo-800 shadow-indigo-glow flex items-center gap-2 transition-colors">
+            <i data-lucide="pencil" class="w-4 h-4"></i>
+            Modifier
+          </a>
+        {% endif %}
+        {% if doc.statut == 'brouillon' %}
+          <form method="post" action="{% url 'pedagogy:document_delete' doc.pk %}" onsubmit="return confirm('Supprimer ce document ?');">
+            {% csrf_token %}
+            <button type="submit" class="h-11 px-5 rounded-xl bg-red-50 text-red-600 font-bold hover:bg-red-100 flex items-center gap-2 transition-colors">
+              <i data-lucide="trash-2" class="w-4 h-4"></i>
+              Supprimer
+            </button>
+          </form>
+        {% endif %}
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<script>lucide.createIcons();</script>

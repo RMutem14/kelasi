@@ -1,0 +1,226 @@
+{% extends "layouts/dashboard.html" %}
+{% load huduma_tags %}
+{% load static %}
+
+{% block content %}
+
+  {# ============================================================ #}
+  {# En-tête : badge + titre + sous-titre #}
+  {# ============================================================ #}
+  <section class="mb-8">
+    <div class="mb-5">
+      <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-50 text-orange-700 text-sm font-semibold">
+        <i data-lucide="shield-check" class="w-4 h-4"></i>
+        Administration
+      </span>
+    </div>
+    <h1 class="text-3xl font-extrabold tracking-[-0.03em] text-slate-950">
+      {{ page_title }}
+    </h1>
+    <p class="mt-2 text-sm text-slate-500 max-w-2xl">
+      {{ page_subtitle }}
+    </p>
+  </section>
+
+  {# ============================================================ #}
+  {# Formulaire #}
+  {# ============================================================ #}
+  <section class="grid lg:grid-cols-3 gap-8">
+
+    {# Colonne principale : formulaire #}
+    <div class="lg:col-span-2">
+      <form method="post" action="{% url 'notifications:send' %}" class="bg-white border border-slate-200 rounded-[28px] shadow-sm p-7 space-y-6">
+        {% csrf_token %}
+
+        {# Titre #}
+        <div>
+          <label for="id-titre" class="block text-sm font-bold text-slate-900 mb-2">
+            Titre <span class="text-red-500">*</span>
+          </label>
+          <input
+            id="id-titre"
+            type="text"
+            name="titre"
+            required
+            maxlength="200"
+            placeholder="Ex : Nouvelle ressource disponible"
+            class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-3 text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition-all">
+        </div>
+
+        {# Message #}
+        <div>
+          <label for="id-message" class="block text-sm font-bold text-slate-900 mb-2">
+            Message <span class="text-red-500">*</span>
+          </label>
+          <textarea
+            id="id-message"
+            name="message"
+            required
+            rows="5"
+            placeholder="Contenu de la notification affiché dans la boîte de réception des destinataires..."
+            class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-3 text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition-all resize-none"></textarea>
+        </div>
+
+        {# Grille : Niveau + Destinataires #}
+        <div class="grid sm:grid-cols-2 gap-5">
+
+          {# Niveau #}
+          <div>
+            <label for="id-niveau" class="block text-sm font-bold text-slate-900 mb-2">
+              Niveau <span class="text-red-500">*</span>
+            </label>
+            <div class="relative">
+              <select
+                id="id-niveau"
+                name="niveau"
+                class="w-full appearance-none bg-slate-50 border border-slate-200 rounded-2xl px-5 py-3 pr-11 text-sm text-slate-900 font-semibold outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition-all">
+                {% for value, label in niveau_choices %}
+                  <option value="{{ value }}">{{ label }}</option>
+                {% endfor %}
+              </select>
+              <i data-lucide="chevron-down" class="w-5 h-5 text-slate-400 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+            </div>
+            <p class="mt-2 text-xs text-slate-500">Détermine la couleur et l'icône de la notification.</p>
+          </div>
+
+          {# Destinataires (cible) #}
+          <div>
+            <label for="id-cible" class="block text-sm font-bold text-slate-900 mb-2">
+              Destinataires <span class="text-red-500">*</span>
+            </label>
+            <div class="relative">
+              <select
+                id="id-cible"
+                name="cible"
+                class="w-full appearance-none bg-slate-50 border border-slate-200 rounded-2xl px-5 py-3 pr-11 text-sm text-slate-900 font-semibold outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition-all">
+                <option value="all">Tous les utilisateurs</option>
+                <option value="admins">Administrateurs</option>
+                <option value="enseignants">Enseignants</option>
+                <option value="directeurs">Directeurs des études</option>
+                <option value="eleves">Élèves</option>
+              </select>
+              <i data-lucide="chevron-down" class="w-5 h-5 text-slate-400 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+            </div>
+            <p class="mt-2 text-xs text-slate-500">Seuls les comptes actifs seront notifiés.</p>
+          </div>
+        </div>
+
+        {# URL d'action #}
+        <div>
+          <label for="id-url" class="block text-sm font-bold text-slate-900 mb-2">
+            URL d'action <span class="text-slate-400 font-normal">(optionnel)</span>
+          </label>
+          <input
+            id="id-url"
+            type="text"
+            name="url"
+            maxlength="500"
+            placeholder="/dashboard/ressources/123/"
+            class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-3 text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition-all">
+          <p class="mt-2 text-xs text-slate-500 flex items-center gap-1.5">
+            <i data-lucide="info" class="w-3.5 h-3.5"></i>
+            Lien vers lequel l'utilisateur sera redirigé au clic.
+          </p>
+        </div>
+
+        {# Séparateur #}
+        <hr class="border-slate-100">
+
+        {# Actions #}
+        <div class="flex flex-col sm:flex-row sm:items-center justify-end gap-3">
+          <a href="{% url 'notifications:list' %}"
+             class="inline-flex items-center justify-center gap-2 bg-white border border-slate-200 text-slate-700 px-5 py-3 rounded-2xl font-bold text-sm hover:bg-slate-50 transition-colors">
+            <i data-lucide="x" class="w-4 h-4"></i>
+            Annuler
+          </a>
+          <button type="submit"
+                  class="inline-flex items-center justify-center gap-2 bg-indigo-600 text-white px-5 py-3 rounded-2xl font-bold text-sm shadow-indigo-glow hover:bg-indigo-700 transition-colors">
+            <i data-lucide="send" class="w-4 h-4"></i>
+            Envoyer la notification
+          </button>
+        </div>
+      </form>
+    </div>
+
+    {# Colonne latérale : aide + aperçu des rôles #}
+    <aside class="space-y-6">
+
+      {# Aide #}
+      <div class="bg-white border border-slate-200 rounded-[28px] shadow-sm p-6">
+        <div class="flex items-center gap-3 mb-4">
+          <span class="w-10 h-10 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+            <i data-lucide="lightbulb" class="w-5 h-5"></i>
+          </span>
+          <h3 class="text-lg font-extrabold text-slate-950">Bonnes pratiques</h3>
+        </div>
+        <ul class="space-y-3 text-sm text-slate-600">
+          <li class="flex gap-2.5">
+            <i data-lucide="check" class="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5"></i>
+            <span>Titre court et explicite (max. 200 caractères).</span>
+          </li>
+          <li class="flex gap-2.5">
+            <i data-lucide="check" class="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5"></i>
+            <span>Message concis : 1 à 3 phrases maximum.</span>
+          </li>
+          <li class="flex gap-2.5">
+            <i data-lucide="check" class="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5"></i>
+            <span>Choisir le niveau adapté à l'urgence du message.</span>
+          </li>
+          <li class="flex gap-2.5">
+            <i data-lucide="check" class="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5"></i>
+            <span>Ajouter une URL d'action si une page est concernée.</span>
+          </li>
+        </ul>
+      </div>
+
+      {# Légende des niveaux #}
+      <div class="bg-white border border-slate-200 rounded-[28px] shadow-sm p-6">
+        <h3 class="text-lg font-extrabold text-slate-950 mb-4">Légende des niveaux</h3>
+        <div class="space-y-3">
+          <div class="flex items-center gap-3">
+            <span class="w-8 h-8 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center flex-shrink-0">
+              <i data-lucide="info" class="w-4 h-4"></i>
+            </span>
+            <div>
+              <p class="font-bold text-slate-900 text-sm">Information</p>
+              <p class="text-xs text-slate-500">Bleu — communication générale</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center flex-shrink-0">
+              <i data-lucide="check-circle" class="w-4 h-4"></i>
+            </span>
+            <div>
+              <p class="font-bold text-slate-900 text-sm">Succès</p>
+              <p class="text-xs text-slate-500">Vert — confirmation positive</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center flex-shrink-0">
+              <i data-lucide="alert-triangle" class="w-4 h-4"></i>
+            </span>
+            <div>
+              <p class="font-bold text-slate-900 text-sm">Avertissement</p>
+              <p class="text-xs text-slate-500">Orange — attention requise</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="w-8 h-8 rounded-xl bg-red-50 text-red-600 flex items-center justify-center flex-shrink-0">
+              <i data-lucide="x-circle" class="w-4 h-4"></i>
+            </span>
+            <div>
+              <p class="font-bold text-slate-900 text-sm">Erreur</p>
+              <p class="text-xs text-slate-500">Rouge — problème critique</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </aside>
+  </section>
+
+{% endblock %}
+
+{% block extra_scripts %}
+  <script>lucide.createIcons();</script>
+{% endblock %}

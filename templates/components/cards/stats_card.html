@@ -1,0 +1,29 @@
+{# Composant réutilisable - voir design-system #}
+{% if url %}
+  <a href="{{ url }}" class="block bg-white rounded-[26px] border border-{{ color|default:'indigo' }}-100 p-6 shadow-sm hover:shadow-md transition-shadow">
+{% else %}
+  <div class="bg-white rounded-[26px] border border-{{ color|default:'indigo' }}-100 p-6 shadow-sm">
+{% endif %}
+
+  <div class="flex items-center justify-between">
+    <div class="w-13 h-13 rounded-2xl bg-{{ color|default:'indigo' }}-100 p-3 flex items-center justify-center">
+      <i data-lucide="{{ icon }}" class="w-7 h-7 text-{{ color|default:'indigo' }}-600"></i>
+    </div>
+    {% if badge %}
+      <span class="text-xs bg-{{ badge_color|default:color|default:'indigo' }}-50 text-{{ badge_color|default:color|default:'indigo' }}-600 px-3 py-1 rounded-full font-semibold">
+        {{ badge }}
+      </span>
+    {% endif %}
+  </div>
+
+  <h3 class="mt-6 text-3xl font-extrabold text-slate-900">{{ value }}</h3>
+  <p class="mt-1 text-slate-500">{{ label }}</p>
+  {% if footer %}
+    <p class="mt-4 text-sm text-slate-400">{{ footer }}</p>
+  {% endif %}
+
+{% if url %}
+  </a>
+{% else %}
+  </div>
+{% endif %}

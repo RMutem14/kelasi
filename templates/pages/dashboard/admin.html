@@ -1,0 +1,87 @@
+{% extends "layouts/dashboard.html" %}
+{% load huduma_tags %}
+
+{% block content %}
+
+  {# Stats cards #}
+  <section class="grid sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
+    {% for stat in stats_cards %}
+      {% include "components/cards/stats_card.html" with label=stat.label value=stat.value icon=stat.icon color=stat.color badge=stat.badge footer=stat.footer %}
+    {% endfor %}
+  </section>
+
+  {# Grid : table users + sidebar actions #}
+  <section class="grid xl:grid-cols-3 gap-8">
+
+    {# Tableau comptes récents #}
+    <div class="xl:col-span-2">
+      {% include "components/tables/table.html" with title="Comptes récents" subtitle="Derniers utilisateurs ajoutés" columns=columns rows=recent_users actions=table_actions %}
+    </div>
+
+    {# Sidebar : actions rapides + activité #}
+    <div class="space-y-8">
+
+      {# Actions rapides #}
+      <div class="bg-white rounded-[28px] border border-slate-200 p-6 shadow-sm">
+        <h3 class="text-xl font-extrabold mb-6 text-slate-900">Actions rapides</h3>
+        <div class="grid grid-cols-2 gap-4">
+          <button class="p-4 rounded-2xl bg-indigo-50 text-left hover:bg-indigo-100 transition-colors">
+            <i data-lucide="user-plus" class="w-6 h-6 text-indigo-600 mb-3"></i>
+            <p class="font-bold text-sm text-slate-900">Ajouter compte</p>
+          </button>
+          <button class="p-4 rounded-2xl bg-emerald-50 text-left hover:bg-emerald-100 transition-colors">
+            <i data-lucide="school" class="w-6 h-6 text-emerald-600 mb-3"></i>
+            <p class="font-bold text-sm text-slate-900">Créer classe</p>
+          </button>
+          <button class="p-4 rounded-2xl bg-sky-50 text-left hover:bg-sky-100 transition-colors">
+            <i data-lucide="folder-plus" class="w-6 h-6 text-sky-600 mb-3"></i>
+            <p class="font-bold text-sm text-slate-900">Ajouter document</p>
+          </button>
+          <button class="p-4 rounded-2xl bg-orange-50 text-left hover:bg-orange-100 transition-colors">
+            <i data-lucide="shield-plus" class="w-6 h-6 text-orange-600 mb-3"></i>
+            <p class="font-bold text-sm text-slate-900">Gérer accès</p>
+          </button>
+        </div>
+      </div>
+
+      {# Activité récente #}
+      <div class="bg-white rounded-[28px] border border-slate-200 p-6 shadow-sm">
+        <div class="flex items-center justify-between mb-6">
+          <h3 class="text-xl font-extrabold text-slate-900">Activité récente</h3>
+          <i data-lucide="activity" class="w-5 h-5 text-slate-400"></i>
+        </div>
+        <div class="space-y-6">
+          <div class="flex gap-4">
+            <div class="w-10 h-10 rounded-2xl bg-indigo-50 flex items-center justify-center flex-shrink-0">
+              <i data-lucide="user-plus" class="w-5 h-5 text-indigo-600"></i>
+            </div>
+            <div>
+              <p class="font-bold text-sm text-slate-900">Nouveau compte créé</p>
+              <p class="text-sm text-slate-500 mt-0.5">Un enseignant a été ajouté.</p>
+            </div>
+          </div>
+          <div class="flex gap-4">
+            <div class="w-10 h-10 rounded-2xl bg-sky-50 flex items-center justify-center flex-shrink-0">
+              <i data-lucide="file-plus" class="w-5 h-5 text-sky-600"></i>
+            </div>
+            <div>
+              <p class="font-bold text-sm text-slate-900">Document ajouté</p>
+              <p class="text-sm text-slate-500 mt-0.5">Un support pédagogique est disponible.</p>
+            </div>
+          </div>
+          <div class="flex gap-4">
+            <div class="w-10 h-10 rounded-2xl bg-emerald-50 flex items-center justify-center flex-shrink-0">
+              <i data-lucide="school" class="w-5 h-5 text-emerald-600"></i>
+            </div>
+            <div>
+              <p class="font-bold text-sm text-slate-900">Classe configurée</p>
+              <p class="text-sm text-slate-500 mt-0.5">Une nouvelle classe a été organisée.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+{% endblock %}

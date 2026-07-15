@@ -1,0 +1,219 @@
+{% load static %}
+{% load huduma_tags %}
+{# Sidebar dynamique par rôle - design Kelasi #}
+<div class="flex flex-col h-full justify-between">
+
+  <div>
+    {# Logo #}
+    <div class="flex items-center gap-3 mb-12">
+      <div class="w-11 h-11 overflow-hidden flex items-center justify-center">
+        <img src="{% static 'img/logo_kelasi.png' %}" alt="Logo" class="w-16 h-16 object-contain">
+      </div>
+      <h1 class="text-[24px] font-extrabold tracking-[-0.04em] leading-none">
+        {{ HUDUMA_NAME }}<span class="text-indigo-600 mx-[2px]">|</span>Kelasi
+      </h1>
+    </div>
+
+    {# Navigation par rôle #}
+    <nav class="space-y-2">
+
+      {# Lien commun : Tableau de bord #}
+      <a href="{% url 'dashboard:home' %}"
+         class="flex items-center gap-3 px-4 py-3 rounded-2xl {% if request.resolver_match.namespace == 'dashboard' and request.resolver_match.url_name == 'home' %}bg-indigo-50 text-indigo-600 font-semibold{% else %}text-slate-600 font-medium hover:bg-slate-50{% endif %}">
+        <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+        Tableau de bord
+      </a>
+
+      {% if current_user_role == 'admin' %}
+        {# ===== Menu Admin ===== #}
+        <a href="{% url 'accounts:user_list' %}"
+           class="flex items-center gap-3 px-4 py-3 rounded-2xl {% if request.resolver_match.namespace == 'accounts' %}bg-indigo-50 text-indigo-600 font-semibold{% else %}text-slate-600 font-medium hover:bg-slate-50{% endif %}">
+          <i data-lucide="users" class="w-5 h-5"></i>
+          Utilisateurs
+        </a>
+        <a href="{% url 'academic:classe_list' %}"
+           class="flex items-center gap-3 px-4 py-3 rounded-2xl {% if request.resolver_match.namespace == 'academic' and 'classe' in request.resolver_match.url_name %}bg-indigo-50 text-indigo-600 font-semibold{% else %}text-slate-600 font-medium hover:bg-slate-50{% endif %}">
+          <i data-lucide="school" class="w-5 h-5"></i>
+          Classes
+        </a>
+        <a href="{% url 'academic:cours_list' %}"
+           class="flex items-center gap-3 px-4 py-3 rounded-2xl {% if request.resolver_match.namespace == 'academic' and 'cours' in request.resolver_match.url_name %}bg-indigo-50 text-indigo-600 font-semibold{% else %}text-slate-600 font-medium hover:bg-slate-50{% endif %}">
+          <i data-lucide="book-open" class="w-5 h-5"></i>
+          Cours
+        </a>
+        <a href="{% url 'pedagogy:document_list' %}"
+           class="flex items-center gap-3 px-4 py-3 rounded-2xl {% if request.resolver_match.namespace == 'pedagogy' %}bg-indigo-50 text-indigo-600 font-semibold{% else %}text-slate-600 font-medium hover:bg-slate-50{% endif %}">
+          <i data-lucide="folder-open" class="w-5 h-5"></i>
+          Documents
+        </a>
+        <a href="{% url 'academic:evaluation_list' %}"
+           class="flex items-center gap-3 px-4 py-3 rounded-2xl {% if request.resolver_match.namespace == 'academic' and 'evaluation' in request.resolver_match.url_name %}bg-indigo-50 text-indigo-600 font-semibold{% else %}text-slate-600 font-medium hover:bg-slate-50{% endif %}">
+          <i data-lucide="clipboard-check" class="w-5 h-5"></i>
+          Évaluations
+        </a>
+        <a href="{% url 'dashboard:roles' %}"
+           class="flex items-center gap-3 px-4 py-3 rounded-2xl {% if request.resolver_match.url_name == 'roles' %}bg-indigo-50 text-indigo-600 font-semibold{% else %}text-slate-600 font-medium hover:bg-slate-50{% endif %}">
+          <i data-lucide="shield-check" class="w-5 h-5"></i>
+          Rôles & accès
+        </a>
+        <a href="{% url 'dashboard:settings' %}"
+           class="flex items-center gap-3 px-4 py-3 rounded-2xl {% if request.resolver_match.url_name == 'settings' %}bg-indigo-50 text-indigo-600 font-semibold{% else %}text-slate-600 font-medium hover:bg-slate-50{% endif %}">
+          <i data-lucide="settings" class="w-5 h-5"></i>
+          Paramètres
+        </a>
+
+      {% elif current_user_role == 'enseignant' %}
+        {# ===== Menu Enseignant ===== #}
+        <p class="px-4 pt-5 pb-2 text-xs font-bold text-slate-400 uppercase tracking-wider">Travail pédagogique</p>
+        <a href="{% url 'pedagogy:document_list' %}"
+           class="flex items-center gap-3 px-4 py-3 rounded-2xl {% if request.resolver_match.namespace == 'pedagogy' %}bg-indigo-50 text-indigo-600 font-semibold{% else %}text-slate-600 font-medium hover:bg-slate-50{% endif %}">
+          <i data-lucide="file-text" class="w-5 h-5"></i>
+          Fiches de préparation
+        </a>
+        <a href="{% url 'pedagogy:document_list' %}?type=journal_classe"
+           class="flex items-center gap-3 px-4 py-3 rounded-2xl text-slate-600 font-medium hover:bg-slate-50">
+          <i data-lucide="calendar-days" class="w-5 h-5"></i>
+          Journal de classe
+        </a>
+        <a href="{% url 'pedagogy:document_list' %}?type=cahier_cotes"
+           class="flex items-center gap-3 px-4 py-3 rounded-2xl text-slate-600 font-medium hover:bg-slate-50">
+          <i data-lucide="clipboard-list" class="w-5 h-5"></i>
+          Cahier des cotes
+        </a>
+        <a href="{% url 'pedagogy:document_list' %}?type=cahier_composition"
+           class="flex items-center gap-3 px-4 py-3 rounded-2xl text-slate-600 font-medium hover:bg-slate-50">
+          <i data-lucide="file-pen-line" class="w-5 h-5"></i>
+          Compositions
+        </a>
+        <a href="{% url 'academic:evaluation_list' %}"
+           class="flex items-center gap-3 px-4 py-3 rounded-2xl {% if request.resolver_match.namespace == 'academic' and 'evaluation' in request.resolver_match.url_name %}bg-indigo-50 text-indigo-600 font-semibold{% else %}text-slate-600 font-medium hover:bg-slate-50{% endif %}">
+          <i data-lucide="clipboard-check" class="w-5 h-5"></i>
+          Évaluations
+        </a>
+
+        <p class="px-4 pt-5 pb-2 text-xs font-bold text-slate-400 uppercase tracking-wider">Ma boutique</p>
+        <a href="{% url 'marketplace:my_resources' %}"
+           class="flex items-center gap-3 px-4 py-3 rounded-2xl {% if request.resolver_match.url_name == 'my_resources' %}bg-indigo-50 text-indigo-600 font-semibold{% else %}text-slate-600 font-medium hover:bg-slate-50{% endif %}">
+          <i data-lucide="book-marked" class="w-5 h-5"></i>
+          Mes ressources
+        </a>
+        <a href="{% url 'marketplace:publish' %}"
+           class="flex items-center gap-3 px-4 py-3 rounded-2xl {% if request.resolver_match.url_name == 'publish' %}bg-indigo-50 text-indigo-600 font-semibold{% else %}text-slate-600 font-medium hover:bg-slate-50{% endif %}">
+          <i data-lucide="upload" class="w-5 h-5"></i>
+          Publier une ressource
+        </a>
+        <a href="{% url 'marketplace:my_sales' %}"
+           class="flex items-center gap-3 px-4 py-3 rounded-2xl {% if request.resolver_match.url_name == 'my_sales' %}bg-indigo-50 text-indigo-600 font-semibold{% else %}text-slate-600 font-medium hover:bg-slate-50{% endif %}">
+          <i data-lucide="trending-up" class="w-5 h-5"></i>
+          Mes ventes
+        </a>
+        <a href="{% url 'marketplace:my_purchases' %}"
+           class="flex items-center gap-3 px-4 py-3 rounded-2xl {% if request.resolver_match.url_name == 'my_purchases' %}bg-indigo-50 text-indigo-600 font-semibold{% else %}text-slate-600 font-medium hover:bg-slate-50{% endif %}">
+          <i data-lucide="shopping-bag" class="w-5 h-5"></i>
+          Mes achats
+        </a>
+        <a href="{% url 'marketplace:wallet' %}"
+           class="flex items-center gap-3 px-4 py-3 rounded-2xl {% if request.resolver_match.url_name in 'wallet withdrawal_request withdrawal_list' %}bg-indigo-50 text-indigo-600 font-semibold{% else %}text-slate-600 font-medium hover:bg-slate-50{% endif %}">
+          <i data-lucide="wallet" class="w-5 h-5"></i>
+          Mon portefeuille
+        </a>
+
+      {% elif current_user_role == 'directeur_etudes' %}
+        {# ===== Menu Directeur ===== #}
+        <a href="{% url 'validation:document_list' %}"
+           class="flex items-center gap-3 px-4 py-3 rounded-2xl {% if request.resolver_match.namespace == 'validation' and 'document' in request.resolver_match.url_name %}bg-indigo-50 text-indigo-600 font-semibold{% else %}text-slate-600 font-medium hover:bg-slate-50{% endif %}">
+          <i data-lucide="file-check" class="w-5 h-5"></i>
+          Documents à valider
+        </a>
+        <a href="{% url 'validation:directeur_classes' %}"
+           class="flex items-center gap-3 px-4 py-3 rounded-2xl {% if request.resolver_match.url_name == 'directeur_classes' %}bg-indigo-50 text-indigo-600 font-semibold{% else %}text-slate-600 font-medium hover:bg-slate-50{% endif %}">
+          <i data-lucide="school" class="w-5 h-5"></i>
+          Classes
+        </a>
+        <a href="{% url 'validation:directeur_cours' %}"
+           class="flex items-center gap-3 px-4 py-3 rounded-2xl {% if request.resolver_match.url_name == 'directeur_cours' %}bg-indigo-50 text-indigo-600 font-semibold{% else %}text-slate-600 font-medium hover:bg-slate-50{% endif %}">
+          <i data-lucide="book-open" class="w-5 h-5"></i>
+          Cours
+        </a>
+        <p class="px-4 pt-5 pb-2 text-xs font-bold text-slate-400 uppercase tracking-wider">Suivi</p>
+        <a href="{% url 'accounts:user_list' %}"
+           class="flex items-center gap-3 px-4 py-3 rounded-2xl text-slate-600 font-medium hover:bg-slate-50">
+          <i data-lucide="users" class="w-5 h-5"></i>
+          Enseignants
+        </a>
+        <a href="{% url 'dashboard:stats' %}"
+           class="flex items-center gap-3 px-4 py-3 rounded-2xl {% if request.resolver_match.url_name == 'stats' %}bg-indigo-50 text-indigo-600 font-semibold{% else %}text-slate-600 font-medium hover:bg-slate-50{% endif %}">
+          <i data-lucide="bar-chart-3" class="w-5 h-5"></i>
+          Statistiques
+        </a>
+
+      {% elif current_user_role == 'eleve' %}
+        {# ===== Menu Élève ===== #}
+        <p class="px-4 pt-5 pb-2 text-xs font-bold text-slate-400 uppercase tracking-wider">Mon espace</p>
+        <a href="{% url 'students:resources' %}"
+           class="flex items-center gap-3 px-4 py-3 rounded-2xl {% if request.resolver_match.url_name == 'resources' %}bg-indigo-50 text-indigo-600 font-semibold{% else %}text-slate-600 font-medium hover:bg-slate-50{% endif %}">
+          <i data-lucide="book-open" class="w-5 h-5"></i>
+          Mes ressources
+        </a>
+        <a href="{% url 'marketplace:my_purchases' %}"
+           class="flex items-center gap-3 px-4 py-3 rounded-2xl {% if request.resolver_match.url_name == 'my_purchases' %}bg-indigo-50 text-indigo-600 font-semibold{% else %}text-slate-600 font-medium hover:bg-slate-50{% endif %}">
+          <i data-lucide="shopping-bag" class="w-5 h-5"></i>
+          Mes achats
+        </a>
+        <a href="{% url 'students:notes' %}"
+           class="flex items-center gap-3 px-4 py-3 rounded-2xl {% if request.resolver_match.url_name == 'notes' %}bg-indigo-50 text-indigo-600 font-semibold{% else %}text-slate-600 font-medium hover:bg-slate-50{% endif %}">
+          <i data-lucide="clipboard-list" class="w-5 h-5"></i>
+          Mes notes
+        </a>
+        <a href="{% url 'marketplace:catalog' %}"
+           class="flex items-center gap-3 px-4 py-3 rounded-2xl {% if request.resolver_match.url_name == 'catalog' %}bg-indigo-50 text-indigo-600 font-semibold{% else %}text-slate-600 font-medium hover:bg-slate-50{% endif %}">
+          <i data-lucide="store" class="w-5 h-5"></i>
+          Catalogue
+        </a>
+      {% endif %}
+
+      {# Lien dev : Design System #}
+      <a href="{% url 'dashboard:design_system' %}"
+         class="flex items-center gap-3 px-4 py-3 rounded-2xl {% if request.resolver_match.url_name == 'design_system' %}bg-indigo-50 text-indigo-600 font-semibold{% else %}text-slate-400 font-medium hover:bg-slate-50{% endif %} text-xs">
+        <i data-lucide="palette" class="w-4 h-4"></i>
+        Design System
+      </a>
+    </nav>
+  </div>
+
+  {# Carte de stockage / rôle (bas de sidebar) #}
+  {% if current_user_role == 'admin' %}
+    <div class="rounded-[28px] bg-indigo-600 p-6 text-white shadow-indigo-glow">
+      <div class="flex items-center justify-between mb-5">
+        <div>
+          <p class="text-sm text-indigo-100">Espace système</p>
+          <h3 class="font-bold text-lg">4.2 Go utilisés</h3>
+        </div>
+        <i data-lucide="cloud-upload" class="w-8 h-8 text-white"></i>
+      </div>
+      <div class="h-2 bg-white/25 rounded-full overflow-hidden mb-5">
+        <div class="h-full w-[21%] bg-white rounded-full"></div>
+      </div>
+      <button class="w-full bg-white text-indigo-600 py-3 rounded-xl font-bold text-sm">
+        Gérer l'espace
+      </button>
+    </div>
+  {% else %}
+    <div class="bg-slate-50 border border-slate-200 rounded-[24px] p-5">
+      <p class="text-sm font-bold text-slate-900">Rôle connecté</p>
+      <p class="text-xs text-slate-500 mt-1">
+        {{ request.user.short_label }} —
+        {% if current_user_role == 'enseignant' %}
+          gestion pédagogique + boutique.
+        {% elif current_user_role == 'directeur_etudes' %}
+          validation pédagogique uniquement.
+        {% elif current_user_role == 'eleve' %}
+          consultation, achat, téléchargement.
+        {% else %}
+          accès limité.
+        {% endif %}
+      </p>
+    </div>
+  {% endif %}
+
+</div>

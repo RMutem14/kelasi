@@ -1,0 +1,42 @@
+{# Composant réutilisable - voir design-system #}
+<div class="relative" x-data="{ open: false }">
+  <button
+    @click="open = !open"
+    class="flex items-center gap-2 px-4 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-sm font-semibold text-slate-700"
+  >
+    {% if icon %}
+      <i data-lucide="{{ icon }}" class="w-4 h-4"></i>
+    {% endif %}
+    {{ label|default:'Menu' }}
+    <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400"></i>
+  </button>
+
+  <div
+    x-show="open"
+    x-cloak
+    @click.outside="open = false"
+    x-transition:enter="transition ease-out duration-100"
+    x-transition:enter-start="opacity-0 scale-95"
+    x-transition:enter-end="opacity-100 scale-100"
+    x-transition:leave="transition ease-in duration-75"
+    x-transition:leave-start="opacity-100 scale-100"
+    x-transition:leave-end="opacity-0 scale-95"
+    class="absolute right-0 mt-2 w-48 bg-white border border-slate-200 rounded-2xl shadow-xl py-1 z-50"
+  >
+    {% for item in items %}
+      {% if item.divider %}
+        <div class="border-t border-slate-100 my-1"></div>
+      {% else %}
+        <a
+          href="{{ item.url|default:'#' }}"
+          class="flex items-center gap-3 px-4 py-2 text-sm {% if item.danger %}text-red-600 hover:bg-red-50{% else %}text-slate-700 hover:bg-slate-50{% endif %}"
+        >
+          {% if item.icon %}
+            <i data-lucide="{{ item.icon }}" class="w-4 h-4"></i>
+          {% endif %}
+          {{ item.label }}
+        </a>
+      {% endif %}
+    {% endfor %}
+  </div>
+</div>

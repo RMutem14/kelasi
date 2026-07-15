@@ -1,0 +1,195 @@
+{% extends "layouts/dashboard.html" %}
+{% load huduma_tags %}
+{% load static %}
+
+{% block content %}
+
+  {# ============================================================ #}
+  {# En-tête : badge rôle + titre + sous-titre #}
+  {# ============================================================ #}
+  <section class="mb-8">
+    <div class="mb-5">
+      <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-violet-50 text-violet-700 text-sm font-semibold">
+        <i data-lucide="briefcase-business" class="w-4 h-4"></i>
+        Directeur des études
+      </span>
+    </div>
+    <h1 class="text-3xl font-extrabold tracking-[-0.03em] text-slate-950">
+      {{ page_title }}
+    </h1>
+    <p class="mt-2 text-sm text-slate-500 max-w-2xl">
+      {{ page_subtitle }}
+    </p>
+  </section>
+
+  {# ============================================================ #}
+  {# Stats principales : 4 cartes documents #}
+  {# ============================================================ #}
+  <section class="grid sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
+    {% include "components/cards/stats_card.html" with label="Documents total" value=stats.documents_total icon="files" color="indigo" footer="Tous statuts confondus" %}
+    {% include "components/cards/stats_card.html" with label="Validés" value=stats.documents_valides icon="check-circle" color="emerald" footer="Prêts à l'usage" %}
+    {% include "components/cards/stats_card.html" with label="En attente" value=stats.documents_en_attente icon="clock" color="amber" footer="Soumis au directeur" %}
+    {% include "components/cards/stats_card.html" with label="Corrections" value=stats.documents_corrections icon="rotate-ccw" color="red" footer="Renvoyés aux enseignants" %}
+  </section>
+
+  {# ============================================================ #}
+  {# Stats secondaires : 3 cartes (Classes, Cours, Enseignants) #}
+  {# ============================================================ #}
+  <section class="grid sm:grid-cols-3 gap-6 mb-10">
+    {% include "components/cards/stats_card.html" with label="Classes" value=stats.classes icon="school" color="violet" footer="Classes configurées" %}
+    {% include "components/cards/stats_card.html" with label="Cours" value=stats.cours icon="book-open" color="sky" footer="Cours dispensés" %}
+    {% include "components/cards/stats_card.html" with label="Enseignants" value=stats.enseignants icon="users" color="orange" footer="Comptes actifs" %}
+  </section>
+
+  {# ============================================================ #}
+  {# Documents par type : barres horizontales CSS #}
+  {# ============================================================ #}
+  <section class="bg-white border border-slate-200 rounded-[28px] shadow-sm p-7 mb-8">
+    <div class="flex items-center justify-between mb-6">
+      <div class="flex items-center gap-3">
+        <span class="w-11 h-11 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+          <i data-lucide="bar-chart-3" class="w-5 h-5"></i>
+        </span>
+        <div>
+          <h2 class="text-xl font-extrabold text-slate-950">Documents par type</h2>
+          <p class="text-sm text-slate-500">Répartition des supports pédagogiques.</p>
+        </div>
+      </div>
+    </div>
+
+    {% if docs_par_type %}
+      <div class="space-y-5">
+        {% for item in docs_par_type %}
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-bold text-slate-900 text-sm">{{ item.label }}</span>
+              <span class="font-extrabold text-slate-950 text-sm">{{ item.count }}</span>
+            </div>
+            <div class="w-full h-3 rounded-full bg-slate-100 overflow-hidden">
+              <div
+                class="doc-type-bar h-full rounded-full bg-gradient-to-r from-indigo-500 to-violet-500 transition-all duration-500"
+                data-count="{{ item.count }}"
+                style="width: 0%;"
+              ></div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="flex flex-col items-center justify-center text-center py-12">
+        <div class="w-16 h-16 rounded-3xl bg-slate-50 border border-slate-100 flex items-center justify-center mb-4">
+          <i data-lucide="inbox" class="w-7 h-7 text-slate-400"></i>
+        </div>
+        <p class="font-bold text-slate-900">Aucun document</p>
+        <p class="text-sm text-slate-500 mt-1">Les types apparaîtront ici dès qu'un document sera créé.</p>
+      </div>
+    {% endif %}
+  </section>
+
+  {# ============================================================ #}
+  {# Top 5 enseignants par documents #}
+  {# ============================================================ #}
+  <section class="bg-white border border-slate-200 rounded-[28px] shadow-sm overflow-hidden">
+    <div class="flex items-center gap-3 p-7 pb-5">
+      <span class="w-11 h-11 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+        <i data-lucide="trophy" class="w-5 h-5"></i>
+      </span>
+      <div>
+        <h2 class="text-xl font-extrabold text-slate-950">Top 5 enseignants par documents</h2>
+        <p class="text-sm text-slate-500">Classement par volume de production pédagogique.</p>
+      </div>
+    </div>
+
+    {% if docs_par_enseignant %}
+      <div class="overflow-x-auto">
+        <table class="w-full text-left">
+          <thead class="bg-slate-50">
+            <tr class="text-xs text-slate-500 uppercase tracking-wide">
+              <th class="px-7 py-3 font-semibold">#</th>
+              <th class="px-7 py-3 font-semibold">Enseignant</th>
+              <th class="px-7 py-3 font-semibold">Documents</th>
+              <th class="px-7 py-3 font-semibold w-1/2">Progression</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 text-sm">
+            {% for item in docs_par_enseignant %}
+              <tr class="hover:bg-slate-50">
+                {# Rang #}
+                <td class="px-7 py-4">
+                  <span class="w-8 h-8 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center font-extrabold text-xs">
+                    {{ forloop.counter }}
+                  </span>
+                </td>
+                {# Enseignant #}
+                <td class="px-7 py-4">
+                  <div class="flex items-center gap-3">
+                    <span class="w-9 h-9 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-xs flex-shrink-0">
+                      {% if item.auteur__first_name and item.auteur__last_name %}{{ item.auteur__first_name|slice:":1"|upper }}{{ item.auteur__last_name|slice:":1"|upper }}{% else %}?{% endif %}
+                    </span>
+                    <span class="font-bold text-slate-900">
+                      {{ item.auteur__first_name|default:"" }} {{ item.auteur__last_name|default:"Anonyme" }}
+                    </span>
+                  </div>
+                </td>
+                {# Total #}
+                <td class="px-7 py-4 font-extrabold text-slate-950">{{ item.total }}</td>
+                {# Barre de progression #}
+                <td class="px-7 py-4">
+                  <div class="w-full h-2.5 rounded-full bg-slate-100 overflow-hidden">
+                    <div
+                      class="teacher-bar h-full rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 transition-all duration-500"
+                      data-value="{{ item.total }}"
+                      style="width: 0%;"
+                    ></div>
+                  </div>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="flex flex-col items-center justify-center text-center py-12 px-6">
+        <div class="w-16 h-16 rounded-3xl bg-slate-50 border border-slate-100 flex items-center justify-center mb-4">
+          <i data-lucide="user-x" class="w-7 h-7 text-slate-400"></i>
+        </div>
+        <p class="font-bold text-slate-900">Aucun enseignant actif</p>
+        <p class="text-sm text-slate-500 mt-1">Les enseignants apparaîtront ici dès qu'ils auront créé des documents.</p>
+      </div>
+    {% endif %}
+  </section>
+
+{% endblock %}
+
+{% block extra_scripts %}
+  <script>lucide.createIcons();</script>
+  <script>
+    {# Calcule la largeur des barres "Documents par type" #}
+    (function () {
+      var typeBars = document.querySelectorAll('.doc-type-bar');
+      var maxType = 0;
+      typeBars.forEach(function (bar) {
+        var c = parseInt(bar.getAttribute('data-count') || '0', 10);
+        if (c > maxType) maxType = c;
+      });
+      typeBars.forEach(function (bar) {
+        var c = parseInt(bar.getAttribute('data-count') || '0', 10);
+        var pct = maxType > 0 ? Math.round((c / maxType) * 100) : 0;
+        bar.style.width = pct + '%';
+      });
+
+      {# Calcule la largeur des barres "Top enseignants" #}
+      var teachBars = document.querySelectorAll('.teacher-bar');
+      var maxTeach = 0;
+      teachBars.forEach(function (bar) {
+        var v = parseInt(bar.getAttribute('data-value') || '0', 10);
+        if (v > maxTeach) maxTeach = v;
+      });
+      teachBars.forEach(function (bar) {
+        var v = parseInt(bar.getAttribute('data-value') || '0', 10);
+        var pct = maxTeach > 0 ? Math.round((v / maxTeach) * 100) : 0;
+        bar.style.width = pct + '%';
+      });
+    })();
+  </script>
+{% endblock %}

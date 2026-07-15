@@ -1,0 +1,120 @@
+{% extends "layouts/dashboard.html" %}
+{% load huduma_tags %}
+{% load static %}
+
+{% block content %}
+
+  {# ============================================================ #}
+  {# En-tête #}
+  {# ============================================================ #}
+  <section class="mb-8">
+    <p class="text-sm text-slate-500 max-w-2xl">
+      Suivez les ventes de vos ressources pédagogiques. Consultez les commandes
+      payées et le revenu total généré par votre catalogue.
+    </p>
+  </section>
+
+  {# ============================================================ #}
+  {# Cartes statistiques #}
+  {# ============================================================ #}
+  <section class="grid sm:grid-cols-2 gap-6 mb-8">
+    {% include "components/cards/stats_card.html" with label="Total ventes" value=stats.total_ventes icon="shopping-bag" color="indigo" footer="Commandes payées" %}
+    {% include "components/cards/stats_card.html" with label="Revenu total" value=stats.revenu_total|floatformat:2 icon="dollar-sign" color="emerald" footer="En USD ($)" %}
+  </section>
+
+  {# ============================================================ #}
+  {# Tableau des ventes #}
+  {# ============================================================ #}
+  <section class="bg-white border border-slate-200 rounded-[28px] shadow-sm overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-left">
+        <thead class="bg-slate-50">
+          <tr class="text-sm text-slate-500">
+            <th class="px-6 py-4 font-semibold text-left">Commande</th>
+            <th class="px-6 py-4 font-semibold text-left">Ressource</th>
+            <th class="px-6 py-4 font-semibold text-left">Élève</th>
+            <th class="px-6 py-4 font-semibold text-left">Montant</th>
+            <th class="px-6 py-4 font-semibold text-left">Statut</th>
+          </tr>
+        </thead>
+
+        <tbody class="divide-y divide-slate-100 text-sm">
+          {% for c in commandes %}
+            <tr class="hover:bg-slate-50">
+
+              {# Commande : référence + date #}
+              <td class="px-6 py-5">
+                <div class="flex items-center gap-3">
+                  <span class="w-10 h-10 rounded-xl bg-indigo-100 text-indigo-700 flex items-center justify-center flex-shrink-0">
+                    <i data-lucide="receipt" class="w-5 h-5"></i>
+                  </span>
+                  <div class="min-w-0">
+                    <p class="font-bold text-slate-900 font-mono text-xs">{{ c.reference }}</p>
+                    <p class="text-slate-500 text-xs">{{ c.created_at|date:"d/m/Y à H:i" }}</p>
+                  </div>
+                </div>
+              </td>
+
+              {# Ressource : titre #}
+              <td class="px-6 py-5">
+                <a href="{% url 'marketplace:detail' c.ressource.pk %}"
+                   class="font-bold text-slate-900 hover:text-indigo-600 transition-colors">
+                  {{ c.ressource.titre }}
+                </a>
+                <p class="text-slate-500 text-xs mt-0.5">{{ c.ressource.get_type_display }}</p>
+              </td>
+
+              {# Élève : avatar + nom #}
+              <td class="px-6 py-5">
+                <div class="flex items-center gap-2">
+                  <span class="w-7 h-7 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center font-bold text-xs flex-shrink-0">
+                    {{ c.eleve.initials }}
+                  </span>
+                  <div class="min-w-0">
+                    <p class="font-semibold text-slate-700 truncate">{{ c.eleve.full_name }}</p>
+                    <p class="text-xs text-slate-400 truncate">{{ c.eleve.email }}</p>
+                  </div>
+                </div>
+              </td>
+
+              {# Montant #}
+              <td class="px-6 py-5">
+                <span class="font-extrabold text-emerald-600">{{ c.montant|floatformat:2 }} $</span>
+              </td>
+
+              {# Statut #}
+              <td class="px-6 py-5">
+                {% include "components/feedback/status_badge.html" with status=c.statut %}
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="5" class="px-6 py-12">
+                <div class="flex flex-col items-center justify-center text-center py-8 px-6">
+                  <div class="w-20 h-20 rounded-3xl bg-slate-50 border border-slate-100 flex items-center justify-center mb-5">
+                    <i data-lucide="shopping-bag" class="w-9 h-9 text-slate-400"></i>
+                  </div>
+                  <h3 class="text-lg font-bold text-slate-900 mb-1.5">Aucune vente pour le moment</h3>
+                  <p class="text-sm text-slate-500 max-w-md">
+                    Vos ressources publiées n'ont pas encore été achetées.
+                    Continuez à publier du contenu de qualité pour attirer les élèves.
+                  </p>
+                  <a href="{% url 'marketplace:publish' %}"
+                     class="mt-6 bg-indigo-600 text-white px-6 py-3 rounded-2xl font-bold text-sm hover:bg-indigo-700 shadow-indigo-glow flex items-center gap-2 transition-colors">
+                    <i data-lucide="plus" class="w-4 h-4"></i>
+                    Publier une ressource
+                  </a>
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+{% endblock %}
+
+{% block extra_scripts %}
+  <script>lucide.createIcons();</script>
+{% endblock %}

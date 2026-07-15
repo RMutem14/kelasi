@@ -1,0 +1,294 @@
+{% extends "layouts/dashboard.html" %}
+{% load huduma_tags %}
+{% load static %}
+
+{% block content %}
+
+  {# ============================================================ #}
+  {# En-tête #}
+  {# ============================================================ #}
+  <section class="mb-8">
+    <div class="mb-5">
+      <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-50 text-orange-700 text-sm font-semibold">
+        <i data-lucide="settings" class="w-4 h-4"></i>
+        Administration
+      </span>
+    </div>
+    <h1 class="text-3xl font-extrabold tracking-[-0.03em] text-slate-950">
+      {{ page_title }}
+    </h1>
+    <p class="mt-2 text-sm text-slate-500 max-w-2xl">
+      Configuration générale de la plateforme.
+    </p>
+  </section>
+
+  {# ============================================================ #}
+  {# Section 1 : Informations de l'établissement #}
+  {# ============================================================ #}
+  <section class="bg-white border border-slate-200 rounded-[28px] shadow-sm p-7 mb-8">
+    <div class="flex items-center gap-3 mb-6">
+      <span class="w-11 h-11 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+        <i data-lucide="building-2" class="w-5 h-5"></i>
+      </span>
+      <div>
+        <h2 class="text-xl font-extrabold text-slate-950">Informations de l'établissement</h2>
+        <p class="text-sm text-slate-500">Identité visible sur l'ensemble de la plateforme.</p>
+      </div>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-5">
+      {# Nom #}
+      <div>
+        <label for="etab-nom" class="block text-sm font-bold text-slate-900 mb-2">Nom de l'établissement</label>
+        <input id="etab-nom" type="text" value="Collège Saint Joseph/Elikya" readonly
+               class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-3 text-sm text-slate-700 font-semibold cursor-not-allowed">
+      </div>
+      {# Année scolaire #}
+      <div>
+        <label for="etab-annee" class="block text-sm font-bold text-slate-900 mb-2">Année scolaire active</label>
+        <input id="etab-annee" type="text" value="2025 — 2026" readonly
+               class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-3 text-sm text-slate-700 font-semibold cursor-not-allowed">
+      </div>
+      {# Email contact #}
+      <div class="md:col-span-2">
+        <label for="etab-email" class="block text-sm font-bold text-slate-900 mb-2">Email de contact</label>
+        <input id="etab-email" type="email" value="contact@elikya.cd" readonly
+               class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-3 text-sm text-slate-700 font-semibold cursor-not-allowed">
+      </div>
+    </div>
+
+    {# Note #}
+    <div class="mt-6 p-4 rounded-2xl bg-amber-50 border border-amber-100 flex items-start gap-3">
+      <i data-lucide="lock" class="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5"></i>
+      <p class="text-xs text-amber-800 leading-relaxed">
+        Configuration gérée via les variables d'environnement.
+        Toute modification requiert un accès au fichier <code class="font-mono bg-amber-100 px-1.5 py-0.5 rounded">.env</code> du serveur.
+      </p>
+    </div>
+  </section>
+
+  {# ============================================================ #}
+  {# Section 2 : Passerelle de paiement #}
+  {# ============================================================ #}
+  <section class="bg-white border border-slate-200 rounded-[28px] shadow-sm p-7 mb-8">
+    <div class="flex items-center gap-3 mb-6">
+      <span class="w-11 h-11 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+        <i data-lucide="credit-card" class="w-5 h-5"></i>
+      </span>
+      <div>
+        <h2 class="text-xl font-extrabold text-slate-950">Passerelle de paiement</h2>
+        <p class="text-sm text-slate-500">État des intégrations pour la marketplace.</p>
+      </div>
+    </div>
+
+    {# Info #}
+    <div class="mb-6 p-4 rounded-2xl bg-emerald-50 border border-emerald-100 flex items-start gap-3">
+      <i data-lucide="zap" class="w-5 h-5 text-emerald-600 flex-shrink-0 mt-0.5"></i>
+      <p class="text-xs text-emerald-800 leading-relaxed">
+        Orange Money, M-Pesa et iKeePay sont prêts à être configurés.
+        Contactez votre fournisseur pour obtenir les clés API et activez la passerelle souhaitée.
+      </p>
+    </div>
+
+    {# Tableau des 4 passerelles #}
+    <div class="overflow-x-auto -mx-7 px-7">
+      <table class="w-full text-left">
+        <thead class="bg-slate-50">
+          <tr class="text-xs text-slate-500 uppercase tracking-wide">
+            <th class="px-5 py-3 font-semibold">Passerelle</th>
+            <th class="px-5 py-3 font-semibold">Type</th>
+            <th class="px-5 py-3 font-semibold">Statut</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 text-sm">
+          {# Simulated #}
+          <tr class="hover:bg-slate-50">
+            <td class="px-5 py-4">
+              <div class="flex items-center gap-3">
+                <span class="w-9 h-9 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center">
+                  <i data-lucide="flask-conical" class="w-4 h-4"></i>
+                </span>
+                <span class="font-bold text-slate-900">Simulated</span>
+              </div>
+            </td>
+            <td class="px-5 py-4 text-slate-600">Test / Développement</td>
+            <td class="px-5 py-4">
+              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 font-semibold text-xs">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                Actif
+              </span>
+            </td>
+          </tr>
+          {# Orange Money #}
+          <tr class="hover:bg-slate-50">
+            <td class="px-5 py-4">
+              <div class="flex items-center gap-3">
+                <span class="w-9 h-9 rounded-xl bg-orange-100 text-orange-600 flex items-center justify-center">
+                  <i data-lucide="smartphone" class="w-4 h-4"></i>
+                </span>
+                <span class="font-bold text-slate-900">Orange Money</span>
+              </div>
+            </td>
+            <td class="px-5 py-4 text-slate-600">Mobile Money</td>
+            <td class="px-5 py-4">
+              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 text-amber-700 font-semibold text-xs">
+                <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                Prêt à configurer
+              </span>
+            </td>
+          </tr>
+          {# M-Pesa #}
+          <tr class="hover:bg-slate-50">
+            <td class="px-5 py-4">
+              <div class="flex items-center gap-3">
+                <span class="w-9 h-9 rounded-xl bg-green-100 text-green-600 flex items-center justify-center">
+                  <i data-lucide="smartphone" class="w-4 h-4"></i>
+                </span>
+                <span class="font-bold text-slate-900">M-Pesa</span>
+              </div>
+            </td>
+            <td class="px-5 py-4 text-slate-600">Mobile Money</td>
+            <td class="px-5 py-4">
+              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 text-amber-700 font-semibold text-xs">
+                <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                Prêt à configurer
+              </span>
+            </td>
+          </tr>
+          {# iKeePay #}
+          <tr class="hover:bg-slate-50">
+            <td class="px-5 py-4">
+              <div class="flex items-center gap-3">
+                <span class="w-9 h-9 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center">
+                  <i data-lucide="wallet" class="w-4 h-4"></i>
+                </span>
+                <span class="font-bold text-slate-900">iKeePay</span>
+              </div>
+            </td>
+            <td class="px-5 py-4 text-slate-600">Carte / Agrégateur</td>
+            <td class="px-5 py-4">
+              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 text-amber-700 font-semibold text-xs">
+                <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                Prêt à configurer
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  {# ============================================================ #}
+  {# Section 3 : Système #}
+  {# ============================================================ #}
+  <section class="bg-white border border-slate-200 rounded-[28px] shadow-sm p-7 mb-8">
+    <div class="flex items-center gap-3 mb-6">
+      <span class="w-11 h-11 rounded-2xl bg-sky-50 text-sky-600 flex items-center justify-center">
+        <i data-lucide="server" class="w-5 h-5"></i>
+      </span>
+      <div>
+        <h2 class="text-xl font-extrabold text-slate-950">Système</h2>
+        <p class="text-sm text-slate-500">Versions et moteur de base de données.</p>
+      </div>
+    </div>
+
+    <div class="overflow-x-auto -mx-7 px-7">
+      <table class="w-full text-left">
+        <thead class="bg-slate-50">
+          <tr class="text-xs text-slate-500 uppercase tracking-wide">
+            <th class="px-5 py-3 font-semibold">Composant</th>
+            <th class="px-5 py-3 font-semibold">Valeur</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 text-sm">
+          <tr class="hover:bg-slate-50">
+            <td class="px-5 py-4 text-slate-600">Django</td>
+            <td class="px-5 py-4 font-bold text-slate-900 font-mono">5.1</td>
+          </tr>
+          <tr class="hover:bg-slate-50">
+            <td class="px-5 py-4 text-slate-600">Python</td>
+            <td class="px-5 py-4 font-bold text-slate-900 font-mono">3.12</td>
+          </tr>
+          <tr class="hover:bg-slate-50">
+            <td class="px-5 py-4 text-slate-600">Base de données</td>
+            <td class="px-5 py-4 font-bold text-slate-900 font-mono">SQLite (développement)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="mt-6 p-4 rounded-2xl bg-sky-50 border border-sky-100 flex items-start gap-3">
+      <i data-lucide="info" class="w-5 h-5 text-sky-600 flex-shrink-0 mt-0.5"></i>
+      <p class="text-xs text-sky-800 leading-relaxed">
+        Le moteur de base de données bascule automatiquement vers PostgreSQL en production.
+      </p>
+    </div>
+  </section>
+
+  {# ============================================================ #}
+  {# Section 4 : Maintenance #}
+  {# ============================================================ #}
+  <section class="bg-white border border-slate-200 rounded-[28px] shadow-sm p-7">
+    <div class="flex items-center gap-3 mb-6">
+      <span class="w-11 h-11 rounded-2xl bg-red-50 text-red-600 flex items-center justify-center">
+        <i data-lucide="wrench" class="w-5 h-5"></i>
+      </span>
+      <div>
+        <h2 class="text-xl font-extrabold text-slate-950">Maintenance</h2>
+        <p class="text-sm text-slate-500">Actions d'administration technique.</p>
+      </div>
+    </div>
+
+    <div class="grid sm:grid-cols-2 gap-5">
+      {# Vider le cache #}
+      <div class="p-5 rounded-2xl border border-slate-200 bg-slate-50/60">
+        <div class="flex items-start gap-3 mb-4">
+          <span class="w-10 h-10 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center flex-shrink-0">
+            <i data-lucide="trash-2" class="w-5 h-5"></i>
+          </span>
+          <div>
+            <p class="font-bold text-slate-900">Vider le cache</p>
+            <p class="text-xs text-slate-500 mt-0.5">Purge toutes les entrées en cache.</p>
+          </div>
+        </div>
+        <button type="button"
+                onclick="alert('Action de maintenance : le cache sera vidé lors du prochain déploiement.');"
+                class="w-full bg-indigo-600 text-white px-5 py-2.5 rounded-2xl font-bold text-sm shadow-indigo-glow hover:bg-indigo-700 transition-colors inline-flex items-center justify-center gap-2">
+          <i data-lucide="eraser" class="w-4 h-4"></i>
+          Vider le cache
+        </button>
+      </div>
+
+      {# Reindexer #}
+      <div class="p-5 rounded-2xl border border-slate-200 bg-slate-50/60">
+        <div class="flex items-start gap-3 mb-4">
+          <span class="w-10 h-10 rounded-xl bg-violet-100 text-violet-600 flex items-center justify-center flex-shrink-0">
+            <i data-lucide="list-restart" class="w-5 h-5"></i>
+          </span>
+          <div>
+            <p class="font-bold text-slate-900">Reindexer les recherches</p>
+            <p class="text-xs text-slate-500 mt-0.5">Reconstruit l'index de recherche plein texte.</p>
+          </div>
+        </div>
+        <button type="button"
+                onclick="alert('Action de maintenance : la réindexation sera planifiée lors du prochain déploiement.');"
+                class="w-full bg-indigo-600 text-white px-5 py-2.5 rounded-2xl font-bold text-sm shadow-indigo-glow hover:bg-indigo-700 transition-colors inline-flex items-center justify-center gap-2">
+          <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+          Reindexer
+        </button>
+      </div>
+    </div>
+
+    <div class="mt-6 p-4 rounded-2xl bg-red-50 border border-red-100 flex items-start gap-3">
+      <i data-lucide="alert-triangle" class="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5"></i>
+      <p class="text-xs text-red-800 leading-relaxed">
+        Ces actions sont temporaires et seront effectivement câblées à des tâches asynchrones (Celery) dans une prochaine itération.
+      </p>
+    </div>
+  </section>
+
+{% endblock %}
+
+{% block extra_scripts %}
+  <script>lucide.createIcons();</script>
+{% endblock %}

@@ -1,0 +1,143 @@
+{% extends "layouts/dashboard.html" %}
+{% load huduma_tags %}
+{% load static %}
+
+{% block content %}
+
+  {# ============================================================ #}
+  {# Header : badge lecture seule + intro #}
+  {# ============================================================ #}
+  <section class="mb-8">
+    <div class="mb-5">
+      <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 text-slate-600 text-sm font-semibold">
+        <i data-lucide="eye-off" class="w-4 h-4"></i>
+        Lecture seule
+      </span>
+    </div>
+    <p class="text-sm text-slate-500 max-w-2xl">
+      Consultez les cours dispensés dans l'établissement, leurs enseignants
+      affectés et leurs coefficients. En tant que directeur des études,
+      vous disposez d'un accès en lecture uniquement.
+    </p>
+  </section>
+
+  {# ============================================================ #}
+  {# Tableau des cours (lecture seule, sans actions) #}
+  {# ============================================================ #}
+  <section class="bg-white border border-slate-200 rounded-[28px] shadow-sm overflow-hidden mb-6">
+    <div class="overflow-x-auto">
+      <table class="w-full text-left">
+        <thead class="bg-slate-50">
+          <tr class="text-sm text-slate-500">
+            <th class="px-6 py-4 font-semibold text-left">Cours</th>
+            <th class="px-6 py-4 font-semibold text-left">Classe</th>
+            <th class="px-6 py-4 font-semibold text-left">Enseignant</th>
+            <th class="px-6 py-4 font-semibold text-left">Coefficient</th>
+            <th class="px-6 py-4 font-semibold text-left">Statut</th>
+          </tr>
+        </thead>
+
+        <tbody class="divide-y divide-slate-100 text-sm">
+          {% for cours in cours_list %}
+            <tr class="hover:bg-slate-50">
+              {# Cours : icône + nom + code #}
+              <td class="px-6 py-5">
+                <div class="flex items-center gap-3">
+                  <span class="w-10 h-10 rounded-xl bg-sky-100 text-sky-700 flex items-center justify-center flex-shrink-0">
+                    <i data-lucide="book-open" class="w-5 h-5"></i>
+                  </span>
+                  <div class="min-w-0">
+                    <p class="font-bold text-slate-900 truncate">{{ cours.nom }}</p>
+                    <p class="text-slate-500 text-xs font-mono truncate">{{ cours.code }}</p>
+                  </div>
+                </div>
+              </td>
+
+              {# Classe #}
+              <td class="px-6 py-5">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 font-semibold text-xs">
+                  <i data-lucide="school" class="w-3 h-3"></i>
+                  {{ cours.classe.nom }}
+                </span>
+              </td>
+
+              {# Enseignant (ou "Non affecté") #}
+              <td class="px-6 py-5">
+                {% if cours.enseignant %}
+                  <div class="flex items-center gap-2">
+                    <span class="w-7 h-7 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-xs flex-shrink-0">
+                      {{ cours.enseignant.initials }}
+                    </span>
+                    <span class="font-semibold text-slate-700 truncate">{{ cours.enseignant.full_name }}</span>
+                  </div>
+                {% else %}
+                  <span class="inline-flex items-center gap-1.5 text-slate-400 text-xs font-semibold">
+                    <i data-lucide="user-x" class="w-3.5 h-3.5"></i>
+                    Non affecté
+                  </span>
+                {% endif %}
+              </td>
+
+              {# Coefficient #}
+              <td class="px-6 py-5">
+                <span class="inline-flex items-center justify-center w-9 h-9 rounded-xl bg-indigo-50 text-indigo-700 font-extrabold text-sm">
+                  {{ cours.coefficient }}
+                </span>
+              </td>
+
+              {# Statut #}
+              <td class="px-6 py-5">
+                {% if cours.statut == 'actif' %}
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-600 font-semibold text-xs">
+                    <i data-lucide="check-circle" class="w-3 h-3"></i>
+                    Actif
+                  </span>
+                {% elif cours.statut == 'sans_enseignant' %}
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-50 text-orange-600 font-semibold text-xs">
+                    <i data-lucide="user-x" class="w-3 h-3"></i>
+                    Sans enseignant
+                  </span>
+                {% elif cours.statut == 'a_completer' %}
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 text-amber-600 font-semibold text-xs">
+                    <i data-lucide="alert-circle" class="w-3 h-3"></i>
+                    À compléter
+                  </span>
+                {% else %}
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 text-slate-600 font-semibold text-xs">
+                    {{ cours.get_statut_display }}
+                  </span>
+                {% endif %}
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="5" class="px-6 py-12">
+                {% include "components/feedback/empty_state.html" with icon="book-open" title="Aucun cours trouvé" message="Aucun cours n'est enregistré dans l'établissement pour le moment." %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  {# ============================================================ #}
+  {# Bandeau d'information lecture seule #}
+  {# ============================================================ #}
+  <div class="bg-sky-50 border border-sky-100 rounded-2xl px-5 py-4 flex items-start gap-3">
+    <span class="w-9 h-9 rounded-xl bg-sky-100 text-sky-600 flex items-center justify-center flex-shrink-0">
+      <i data-lucide="info" class="w-5 h-5"></i>
+    </span>
+    <div>
+      <p class="text-sm font-bold text-slate-900">Consultation en lecture seule</p>
+      <p class="text-sm text-slate-600 mt-0.5">
+        Vous consultez ces données en lecture seule. Pour toute modification, contactez l'administrateur.
+      </p>
+    </div>
+  </div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+  <script>lucide.createIcons();</script>
+{% endblock %}

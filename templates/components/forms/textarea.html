@@ -1,0 +1,31 @@
+{# Composant réutilisable - voir design-system #}
+<div>
+  {% if label %}
+    <label for="{{ id|default:name }}" class="block text-sm font-semibold text-slate-700 mb-2">
+      {{ label }}
+      {% if required %}<span class="text-red-500">*</span>{% endif %}
+    </label>
+  {% endif %}
+
+  <textarea
+    name="{{ name }}"
+    id="{{ id|default:name }}"
+    rows="{{ rows|default:4 }}"
+    placeholder="{{ placeholder|default:'' }}"
+    {% if required %}required{% endif %}
+    class="w-full px-4 py-4 rounded-2xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 outline-none transition-all text-slate-900 placeholder:text-slate-400 resize-none"
+  >{{ value|default:'' }}</textarea>
+
+  {% if help_text %}
+    <p class="mt-1.5 text-xs text-slate-500">{{ help_text }}</p>
+  {% endif %}
+
+  {% if errors %}
+    {% for error in errors %}
+      <p class="mt-1.5 text-xs text-red-600 flex items-center gap-1">
+        <i data-lucide="alert-circle" class="w-3.5 h-3.5"></i>
+        {{ error }}
+      </p>
+    {% endfor %}
+  {% endif %}
+</div>

@@ -1,0 +1,286 @@
+{% extends "layouts/dashboard.html" %}
+{% load huduma_tags %}
+
+{% block content %}
+
+  {# Breadcrumb #}
+  {% include "components/navigation/breadcrumb.html" with items=breadcrumb_items %}
+
+  {# Section 1 : Palette de couleurs #}
+  <section class="mb-10">
+    <h3 class="text-xl font-extrabold text-slate-900 mb-1">Palette de couleurs</h3>
+    <p class="text-sm text-slate-500 mb-5">Système de couleurs TailwindCSS du projet.</p>
+
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+      <div class="rounded-2xl bg-indigo-600 text-white p-4 text-sm font-semibold">Indigo<br><span class="text-xs opacity-80">#4f46e5</span></div>
+      <div class="rounded-2xl bg-emerald-500 text-white p-4 text-sm font-semibold">Emerald<br><span class="text-xs opacity-80">#10b981</span></div>
+      <div class="rounded-2xl bg-red-500 text-white p-4 text-sm font-semibold">Red<br><span class="text-xs opacity-80">#ef4444</span></div>
+      <div class="rounded-2xl bg-amber-500 text-white p-4 text-sm font-semibold">Amber<br><span class="text-xs opacity-80">#f59e0b</span></div>
+      <div class="rounded-2xl bg-sky-500 text-white p-4 text-sm font-semibold">Sky<br><span class="text-xs opacity-80">#0ea5e9</span></div>
+      <div class="rounded-2xl bg-slate-800 text-white p-4 text-sm font-semibold">Slate<br><span class="text-xs opacity-80">#1e293b</span></div>
+    </div>
+  </section>
+
+  {# Section 2 : Boutons #}
+  <section class="mb-10">
+    <h3 class="text-xl font-extrabold text-slate-900 mb-1">Boutons</h3>
+    <p class="text-sm text-slate-500 mb-5">Variantes principales.</p>
+
+    <div class="bg-white border border-slate-200 rounded-[28px] p-6 shadow-sm">
+      <div class="flex flex-wrap items-center gap-4">
+        <button class="bg-indigo-600 text-white px-5 py-3 rounded-2xl font-bold flex items-center gap-2 shadow-indigo-glow hover:bg-indigo-700">
+          <i data-lucide="plus" class="w-5 h-5"></i>
+          Primaire
+        </button>
+        <button class="bg-emerald-600 text-white px-5 py-3 rounded-2xl font-bold flex items-center gap-2 hover:bg-emerald-700">
+          <i data-lucide="check" class="w-5 h-5"></i>
+          Succès
+        </button>
+        <button class="bg-red-50 text-red-600 px-5 py-3 rounded-2xl font-bold flex items-center gap-2 hover:bg-red-100">
+          <i data-lucide="trash-2" class="w-5 h-5"></i>
+          Danger
+        </button>
+        <button class="border border-slate-200 text-slate-700 px-5 py-3 rounded-2xl font-bold flex items-center gap-2 hover:bg-slate-50">
+          <i data-lucide="x" class="w-5 h-5"></i>
+          Secondaire
+        </button>
+        <button class="bg-slate-50 text-slate-600 px-5 py-3 rounded-2xl font-bold hover:bg-slate-100">
+          Neutre
+        </button>
+        <button class="bg-indigo-600 text-white p-3 rounded-2xl font-bold shadow-indigo-glow hover:bg-indigo-700" title="Icône seule">
+          <i data-lucide="settings" class="w-5 h-5"></i>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  {# Section 3 : Badges de statut #}
+  <section class="mb-10">
+    <h3 class="text-xl font-extrabold text-slate-900 mb-1">Badges de statut</h3>
+    <p class="text-sm text-slate-500 mb-5">Mapping DocumentStatus → couleur.</p>
+
+    <div class="bg-white border border-slate-200 rounded-[28px] p-6 shadow-sm">
+      <div class="flex flex-wrap items-center gap-3">
+        {% include "components/feedback/status_badge.html" with status="brouillon" %}
+        {% include "components/feedback/status_badge.html" with status="soumis" %}
+        {% include "components/feedback/status_badge.html" with status="correction" %}
+        {% include "components/feedback/status_badge.html" with status="valide" %}
+        {% include "components/feedback/status_badge.html" with status="rejete" %}
+        {% include "components/feedback/status_badge.html" with status="publie" %}
+        {% include "components/feedback/status_badge.html" with status="actif" %}
+        {% include "components/feedback/status_badge.html" with status="en_attente" %}
+      </div>
+    </div>
+  </section>
+
+  {# Section 4 : Cartes statistiques #}
+  <section class="mb-10">
+    <h3 class="text-xl font-extrabold text-slate-900 mb-1">Cartes statistiques</h3>
+    <p class="text-sm text-slate-500 mb-5">Composant stats_card avec variantes de couleur.</p>
+
+    <div class="grid sm:grid-cols-2 xl:grid-cols-4 gap-6">
+      {% include "components/cards/stats_card.html" with label="Utilisateurs" value=24 icon="users" color="indigo" badge="Admin" footer="Comptes enregistrés" %}
+      {% include "components/cards/stats_card.html" with label="Classes" value=6 icon="school" color="emerald" badge="Actives" footer="Classes configurées" %}
+      {% include "components/cards/stats_card.html" with label="Documents" value=18 icon="folder-open" color="sky" badge="Publié" footer="Supports pédagogiques" %}
+      {% include "components/cards/stats_card.html" with label="Rôles" value=4 icon="shield-check" color="orange" badge="Accès" footer="Admin, prof, élève, dir." %}
+    </div>
+  </section>
+
+  {# Section 5 : Composants de formulaire #}
+  <section class="mb-10">
+    <h3 class="text-xl font-extrabold text-slate-900 mb-1">Composants de formulaire</h3>
+    <p class="text-sm text-slate-500 mb-5">Inputs, textarea, select, checkbox, radio.</p>
+
+    <div class="bg-white border border-slate-200 rounded-[28px] p-6 shadow-sm">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
+        {% include "components/forms/input.html" with label="Email" name="email" type="email" placeholder="exemple@email.com" icon="mail" required=True %}
+        {% include "components/forms/input.html" with label="Nom complet" name="name" type="text" placeholder="Jean Kabasele" icon="user" %}
+        {% include "components/forms/select.html" with label="Rôle" name="role" options=demo_role_options placeholder="Sélectionner un rôle" icon="shield-check" %}
+        {% include "components/forms/input.html" with label="Mot de passe" name="password" type="password" placeholder="••••••••" icon="lock" required=True %}
+      </div>
+
+      <div class="mb-6">
+        {% include "components/forms/textarea.html" with label="Observation" name="observation" rows=4 placeholder="Écrire une observation..." %}
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div class="space-y-3">
+          {% include "components/forms/checkbox.html" with label="Recevoir les notifications par email" name="notif_email" checked=True %}
+          {% include "components/forms/checkbox.html" with label="Accepter les conditions d'utilisation" name="accept" required=True %}
+        </div>
+        <div>
+          {% include "components/forms/radio.html" with label="Sexe" name="sexe" options=demo_sexe_options %}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {# Section 6 : Alertes #}
+  <section class="mb-10">
+    <h3 class="text-xl font-extrabold text-slate-900 mb-1">Alertes</h3>
+    <p class="text-sm text-slate-500 mb-5">Messages flash avec icônes et couleurs.</p>
+
+    <div>
+      {% include "components/feedback/alert.html" with level="success" title="Succès" message="L'opération a été effectuée avec succès." dismissible=False %}
+      {% include "components/feedback/alert.html" with level="warning" title="Attention" message="Cette action nécessite votre confirmation." dismissible=False %}
+      {% include "components/feedback/alert.html" with level="error" title="Erreur" message="Une erreur est survenue. Veuillez réessayer." dismissible=False %}
+      {% include "components/feedback/alert.html" with level="info" title="Information" message="Ceci est un message d'information." dismissible=False %}
+    </div>
+  </section>
+
+  {# Section 7 : Tableau #}
+  <section class="mb-10">
+    <h3 class="text-xl font-extrabold text-slate-900 mb-1">Tableau</h3>
+    <p class="text-sm text-slate-500 mb-5">Composant table avec en-tête, lignes et actions.</p>
+
+    {% include "components/tables/table.html" with title="Liste des utilisateurs" subtitle="Comptes actuellement enregistrés" columns=demo_columns rows=demo_rows actions=demo_actions export_label="Exporter" %}
+  </section>
+
+  {# Section 8 : Empty state + Spinner #}
+  <section class="mb-10">
+    <h3 class="text-xl font-extrabold text-slate-900 mb-1">États vides & Spinner</h3>
+    <p class="text-sm text-slate-500 mb-5">Affichages alternatifs quand aucune donnée n'est disponible.</p>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div class="bg-white border border-slate-200 rounded-[28px] p-6 shadow-sm">
+        {% include "components/feedback/empty_state.html" with icon="inbox" title="Aucun document" message="Vous n'avez pas encore créé de document. Commencez dès maintenant." action_label="Créer un document" action_url="#" %}
+      </div>
+      <div class="bg-white border border-slate-200 rounded-[28px] p-6 shadow-sm flex flex-col items-center justify-center gap-4">
+        <p class="text-sm font-semibold text-slate-700">Spinners</p>
+        <div class="flex items-center gap-6">
+          {% include "components/feedback/spinner.html" with size="w-4 h-4" color="indigo" %}
+          {% include "components/feedback/spinner.html" with size="w-8 h-8" color="emerald" %}
+          {% include "components/feedback/spinner.html" with size="w-12 h-12" color="sky" %}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {# Section 9 : Dropdown #}
+  <section class="mb-10">
+    <h3 class="text-xl font-extrabold text-slate-900 mb-1">Dropdown</h3>
+    <p class="text-sm text-slate-500 mb-5">Menu déroulant avec Alpine.js.</p>
+
+    <div class="bg-white border border-slate-200 rounded-[28px] p-6 shadow-sm">
+      {% include "components/navigation/dropdown.html" with label="Actions" icon="more-vertical" items=dropdown_items %}
+    </div>
+  </section>
+
+  {# Section 10 : Modal #}
+  <section class="mb-10">
+    <h3 class="text-xl font-extrabold text-slate-900 mb-1">Modal</h3>
+    <p class="text-sm text-slate-500 mb-5">Fenêtre modale avec Alpine.js.</p>
+
+    <div class="bg-white border border-slate-200 rounded-[28px] p-6 shadow-sm">
+      <button
+        @click="$dispatch('open-modal', { id: 'demoModal' })"
+        class="bg-indigo-600 text-white px-5 py-3 rounded-2xl font-bold flex items-center gap-2 shadow-indigo-glow hover:bg-indigo-700"
+      >
+        <i data-lucide="eye" class="w-5 h-5"></i>
+        Ouvrir le modal de démonstration
+      </button>
+    </div>
+
+    {# Modal de démonstration (inline, sans composant pour pouvoir mettre le contenu) #}
+    <div
+      x-data="{ open: false }"
+      @open-modal.window="if ($event.detail.id === 'demoModal') open = true"
+      @close-modal.window="open = false"
+      @keydown.escape.window="open = false"
+    >
+      <div
+        x-show="open"
+        x-cloak
+        class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 backdrop-blur-sm px-4"
+        style="display: none;"
+      >
+        <div
+          @click.outside="open = false"
+          x-transition:enter="transition ease-out duration-200"
+          x-transition:enter-start="opacity-0 scale-95 translate-y-4"
+          x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+          x-transition:leave="transition ease-in duration-150"
+          x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+          x-transition:leave-end="opacity-0 scale-95 translate-y-4"
+          class="w-full max-w-2xl bg-white rounded-[28px] shadow-2xl border border-slate-200 overflow-hidden max-h-[90vh] flex flex-col"
+        >
+          <div class="flex items-center justify-between px-7 py-6 border-b border-slate-200 flex-shrink-0">
+            <div class="flex items-center gap-3">
+              <div class="w-11 h-11 rounded-2xl bg-indigo-50 flex items-center justify-center">
+                <i data-lucide="user" class="w-5 h-5 text-indigo-600"></i>
+              </div>
+              <div>
+                <p class="text-sm font-semibold text-indigo-600 mb-0.5">Fiche utilisateur</p>
+                <h2 class="text-2xl font-extrabold tracking-[-0.03em] text-slate-950">
+                  Détails de l'utilisateur
+                </h2>
+              </div>
+            </div>
+            <button
+              @click="open = false"
+              class="w-10 h-10 rounded-2xl bg-slate-100 hover:bg-slate-200 flex items-center justify-center"
+              aria-label="Fermer"
+            >
+              <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+          </div>
+
+          <div class="p-7 overflow-y-auto flex-1">
+            <div class="flex items-center gap-4 mb-7">
+              <div class="w-16 h-16 rounded-2xl bg-indigo-100 text-indigo-700 flex items-center justify-center text-xl font-extrabold">
+                A
+              </div>
+              <div>
+                <h3 class="text-xl font-extrabold text-slate-950">Madame Amani</h3>
+                <p class="text-slate-500">amani@elikya.cd</p>
+              </div>
+              <span class="ml-auto">
+                {% include "components/feedback/status_badge.html" with status="actif" %}
+              </span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="p-4 rounded-2xl bg-slate-50 border border-slate-100">
+                <p class="text-xs font-bold text-slate-400 uppercase mb-1">Rôle</p>
+                <p class="font-bold text-slate-900">Enseignante</p>
+              </div>
+              <div class="p-4 rounded-2xl bg-slate-50 border border-slate-100">
+                <p class="text-xs font-bold text-slate-400 uppercase mb-1">Matricule</p>
+                <p class="font-bold text-slate-900">ENS-2026-001</p>
+              </div>
+              <div class="p-4 rounded-2xl bg-slate-50 border border-slate-100">
+                <p class="text-xs font-bold text-slate-400 uppercase mb-1">Classe</p>
+                <p class="font-bold text-slate-900">5ème A</p>
+              </div>
+              <div class="p-4 rounded-2xl bg-slate-50 border border-slate-100">
+                <p class="text-xs font-bold text-slate-400 uppercase mb-1">Spécialité</p>
+                <p class="font-bold text-slate-900">Mathématiques</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-end gap-3 px-7 py-5 bg-slate-50 border-t border-slate-200 flex-shrink-0">
+            <button @click="open = false" class="h-11 px-5 rounded-xl border border-slate-200 text-slate-700 font-bold hover:bg-white">
+              Fermer
+            </button>
+            <button class="h-11 px-5 rounded-xl bg-indigo-700 text-white font-bold hover:bg-indigo-800 shadow-indigo-glow flex items-center gap-2">
+              <i data-lucide="pencil" class="w-4 h-4"></i>
+              Modifier
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {# Note Sprint 0 #}
+  <div class="mt-12 rounded-2xl bg-sky-50 border border-sky-200 p-4 text-sm text-sky-800 flex items-start gap-3">
+    <i data-lucide="info" class="w-5 h-5 flex-shrink-0 mt-0.5"></i>
+    <div>
+      <strong>Sprint 0 — Design System complet.</strong>
+      Tous les composants ci-dessus sont réutilisables dans toutes les pages du projet.
+      Le catalogue sera enrichi au fur et à mesure des sprints suivants.
+    </div>
+  </div>
+
+{% endblock %}

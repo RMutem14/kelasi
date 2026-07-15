@@ -1,0 +1,45 @@
+{# Composant réutilisable - voir design-system #}
+{% load static %}
+<div
+  class="rounded-2xl border p-4 mb-4 flex items-start gap-3"
+  x-data="{ show: true }"
+  x-show="show"
+  {% if dismissible|default:True %}x-init="setTimeout(() => show = false, 6000)"{% endif %}
+  x-transition
+>
+  {% if level == 'success' %}
+    <i data-lucide="check-circle" class="w-5 h-5 text-emerald-600 flex-shrink-0 mt-0.5"></i>
+    <div class="flex-1 text-emerald-800">
+      {% if title %}<p class="font-bold">{{ title }}</p>{% endif %}
+      {% if message %}<p class="text-sm mt-0.5">{{ message }}</p>{% endif %}
+    </div>
+    class="bg-emerald-50 border-emerald-200"
+  {% elif level == 'warning' %}
+    <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5"></i>
+    <div class="flex-1 text-amber-800">
+      {% if title %}<p class="font-bold">{{ title }}</p>{% endif %}
+      {% if message %}<p class="text-sm mt-0.5">{{ message }}</p>{% endif %}
+    </div>
+    class="bg-amber-50 border-amber-200"
+  {% elif level == 'error' %}
+    <i data-lucide="x-circle" class="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5"></i>
+    <div class="flex-1 text-red-800">
+      {% if title %}<p class="font-bold">{{ title }}</p>{% endif %}
+      {% if message %}<p class="text-sm mt-0.5">{{ message }}</p>{% endif %}
+    </div>
+    class="bg-red-50 border-red-200"
+  {% else %}
+    <i data-lucide="info" class="w-5 h-5 text-sky-600 flex-shrink-0 mt-0.5"></i>
+    <div class="flex-1 text-sky-800">
+      {% if title %}<p class="font-bold">{{ title }}</p>{% endif %}
+      {% if message %}<p class="text-sm mt-0.5">{{ message }}</p>{% endif %}
+    </div>
+    class="bg-sky-50 border-sky-200"
+  {% endif %}
+
+  {% if dismissible|default:True %}
+    <button @click="show = false" class="text-slate-400 hover:text-slate-700">
+      <i data-lucide="x" class="w-4 h-4"></i>
+    </button>
+  {% endif %}
+</div>

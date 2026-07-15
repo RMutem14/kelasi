@@ -1,0 +1,231 @@
+{% extends "layouts/dashboard.html" %}
+{% load huduma_tags %}
+{% load static %}
+
+{% block content %}
+
+  {# ============================================================ #}
+  {# Barre d'actions : recherche + ajout #}
+  {# ============================================================ #}
+  <section class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-8">
+    <p class="text-sm text-slate-500 max-w-xl">
+      Centralisez les fiches de préparation, journaux de classe et cahiers
+      d'évaluation produits par les enseignants. Validez ou demandez des corrections.
+    </p>
+
+    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+      {# Recherche #}
+      <form method="get" action="{% url 'pedagogy:document_list' %}"
+            class="flex items-center gap-3 w-full sm:w-[340px] bg-white border border-slate-200 rounded-2xl px-5 py-3 shadow-sm focus-within:border-indigo-500 focus-within:ring-4 focus-within:ring-indigo-100 transition-all">
+        <i data-lucide="search" class="w-5 h-5 text-slate-400 flex-shrink-0"></i>
+        <input
+          type="text"
+          name="search"
+          placeholder="Rechercher un document..."
+          class="w-full outline-none text-sm bg-transparent text-slate-700 placeholder:text-slate-400"
+        >
+        {% if active_statut %}
+          <input type="hidden" name="statut" value="{{ active_statut }}">
+        {% endif %}
+        {% if active_type %}
+          <input type="hidden" name="type" value="{{ active_type }}">
+        {% endif %}
+      </form>
+
+      <a href="{% url 'pedagogy:document_add' %}"
+         class="bg-indigo-600 text-white px-5 py-3 rounded-2xl font-bold flex items-center justify-center gap-2 shadow-indigo-glow hover:bg-indigo-700 transition-colors whitespace-nowrap">
+        <i data-lucide="plus" class="w-5 h-5"></i>
+        Ajouter document
+      </a>
+    </div>
+  </section>
+
+  {# ============================================================ #}
+  {# Cartes statistiques #}
+  {# ============================================================ #}
+  <section class="grid sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
+    {% include "components/cards/stats_card.html" with label="Documents enregistrés" value=stats.total icon="folder-open" color="indigo" footer="Tous statuts confondus" %}
+    {% include "components/cards/stats_card.html" with label="Documents validés" value=stats.valides icon="check-circle" color="emerald" footer="Prêts à l'usage" %}
+    {% include "components/cards/stats_card.html" with label="En attente" value=stats.en_attente icon="clock" color="amber" footer="Soumis au directeur" %}
+    {% include "components/cards/stats_card.html" with label="Brouillons" value=stats.brouillons icon="file-edit" color="sky" footer="En cours de rédaction" %}
+  </section>
+
+  {# ============================================================ #}
+  {# Filtres par type de document #}
+  {# ============================================================ #}
+  <section class="flex flex-wrap items-center gap-3 mb-6">
+    <a href="{% url 'pedagogy:document_list' %}{% if active_statut %}?statut={{ active_statut }}{% endif %}"
+       class="px-5 py-2.5 rounded-2xl font-bold text-sm transition-colors {% if not active_type %}bg-indigo-600 text-white shadow-indigo-glow{% else %}bg-white border border-slate-200 text-slate-600 hover:bg-slate-50{% endif %}">
+      Tous
+    </a>
+    <a href="?type=fiche_preparation{% if active_statut %}&statut={{ active_statut }}{% endif %}"
+       class="px-5 py-2.5 rounded-2xl font-bold text-sm transition-colors {% if active_type == 'fiche_preparation' %}bg-indigo-600 text-white shadow-indigo-glow{% else %}bg-white border border-slate-200 text-slate-600 hover:bg-slate-50{% endif %}">
+      Fiche préparation
+    </a>
+    <a href="?type=fiche_prevision{% if active_statut %}&statut={{ active_statut }}{% endif %}"
+       class="px-5 py-2.5 rounded-2xl font-bold text-sm transition-colors {% if active_type == 'fiche_prevision' %}bg-indigo-600 text-white shadow-indigo-glow{% else %}bg-white border border-slate-200 text-slate-600 hover:bg-slate-50{% endif %}">
+      Fiche prévision
+    </a>
+    <a href="?type=journal_classe{% if active_statut %}&statut={{ active_statut }}{% endif %}"
+       class="px-5 py-2.5 rounded-2xl font-bold text-sm transition-colors {% if active_type == 'journal_classe' %}bg-indigo-600 text-white shadow-indigo-glow{% else %}bg-white border border-slate-200 text-slate-600 hover:bg-slate-50{% endif %}">
+      Journal de classe
+    </a>
+    <a href="?type=cahier_composition{% if active_statut %}&statut={{ active_statut }}{% endif %}"
+       class="px-5 py-2.5 rounded-2xl font-bold text-sm transition-colors {% if active_type == 'cahier_composition' %}bg-indigo-600 text-white shadow-indigo-glow{% else %}bg-white border border-slate-200 text-slate-600 hover:bg-slate-50{% endif %}">
+      Cahier composition
+    </a>
+    <a href="?type=cahier_cotes{% if active_statut %}&statut={{ active_statut }}{% endif %}"
+       class="px-5 py-2.5 rounded-2xl font-bold text-sm transition-colors {% if active_type == 'cahier_cotes' %}bg-indigo-600 text-white shadow-indigo-glow{% else %}bg-white border border-slate-200 text-slate-600 hover:bg-slate-50{% endif %}">
+      Cahier cotation
+    </a>
+  </section>
+
+  {# ============================================================ #}
+  {# Tableau des documents #}
+  {# ============================================================ #}
+  <section class="bg-white border border-slate-200 rounded-[28px] shadow-sm overflow-hidden mb-6">
+    <div class="overflow-x-auto">
+      <table class="w-full text-left">
+        <thead class="bg-slate-50">
+          <tr class="text-sm text-slate-500">
+            <th class="px-6 py-4 font-semibold text-left">Document</th>
+            <th class="px-6 py-4 font-semibold text-left">Type</th>
+            <th class="px-6 py-4 font-semibold text-left">Classe</th>
+            <th class="px-6 py-4 font-semibold text-left">Matière</th>
+            <th class="px-6 py-4 font-semibold text-left">Auteur</th>
+            <th class="px-6 py-4 font-semibold text-left">Statut</th>
+            <th class="px-6 py-4 font-semibold text-right">Actions</th>
+          </tr>
+        </thead>
+
+        <tbody class="divide-y divide-slate-100 text-sm">
+          {% for doc in documents %}
+            <tr class="hover:bg-slate-50">
+              {# Document : icône + titre + code #}
+              <td class="px-6 py-5">
+                <div class="flex items-center gap-3">
+                  <span class="w-10 h-10 rounded-xl bg-indigo-100 text-indigo-700 flex items-center justify-center flex-shrink-0">
+                    <i data-lucide="file-text" class="w-5 h-5"></i>
+                  </span>
+                  <div class="min-w-0">
+                    <p class="font-bold text-slate-900 truncate">{{ doc.titre }}</p>
+                    <p class="text-slate-500 text-xs font-mono truncate">{{ doc.code }}</p>
+                  </div>
+                </div>
+              </td>
+
+              {# Type #}
+              <td class="px-6 py-5">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-sky-50 text-sky-700 font-semibold text-xs">
+                  <i data-lucide="file-stack" class="w-3 h-3"></i>
+                  {{ doc.get_type_display }}
+                </span>
+              </td>
+
+              {# Classe #}
+              <td class="px-6 py-5">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 font-semibold text-xs">
+                  <i data-lucide="school" class="w-3 h-3"></i>
+                  {{ doc.classe.nom }}
+                </span>
+              </td>
+
+              {# Matière #}
+              <td class="px-6 py-5">
+                <div class="flex items-center gap-2">
+                  <span class="w-7 h-7 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center flex-shrink-0">
+                    <i data-lucide="book-open" class="w-3.5 h-3.5"></i>
+                  </span>
+                  <span class="font-semibold text-slate-700 truncate">{{ doc.cours.nom }}</span>
+                </div>
+              </td>
+
+              {# Auteur #}
+              <td class="px-6 py-5">
+                {% if doc.auteur %}
+                  <div class="flex items-center gap-2">
+                    <span class="w-7 h-7 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-xs flex-shrink-0">
+                      {{ doc.auteur.initials }}
+                    </span>
+                    <span class="font-semibold text-slate-700 truncate">{{ doc.auteur.full_name }}</span>
+                  </div>
+                {% else %}
+                  <span class="text-slate-400 text-xs font-semibold">—</span>
+                {% endif %}
+              </td>
+
+              {# Statut #}
+              <td class="px-6 py-5">
+                {% include "components/feedback/status_badge.html" with status=doc.statut %}
+              </td>
+
+              {# Actions #}
+              <td class="px-6 py-5">
+                <div class="flex justify-end gap-2">
+                  <button
+                    type="button"
+                    hx-get="{% url 'pedagogy:document_detail' doc.pk %}"
+                    hx-target="#modal-container"
+                    class="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 hover:bg-indigo-100 flex items-center justify-center transition-colors"
+                    title="Voir les détails"
+                  >
+                    <i data-lucide="eye" class="w-4 h-4"></i>
+                  </button>
+                  {% if request.user.role == 'admin' or doc.auteur == request.user %}
+                    {% if doc.statut != 'valide' %}
+                      <a href="{% url 'pedagogy:document_edit' doc.pk %}"
+                         class="w-9 h-9 rounded-xl bg-sky-50 text-sky-600 hover:bg-sky-100 flex items-center justify-center transition-colors"
+                         title="Modifier">
+                        <i data-lucide="pencil" class="w-4 h-4"></i>
+                      </a>
+                    {% endif %}
+                    {% if doc.statut == 'brouillon' %}
+                      <form method="post" action="{% url 'pedagogy:document_delete' doc.pk %}" onsubmit="return confirm('Supprimer ce document ?');" class="inline">
+                        {% csrf_token %}
+                        <button type="submit"
+                          class="w-9 h-9 rounded-xl bg-red-50 text-red-600 hover:bg-red-100 flex items-center justify-center transition-colors"
+                          title="Supprimer">
+                          <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        </button>
+                      </form>
+                    {% endif %}
+                  {% endif %}
+                </div>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="7" class="px-6 py-12">
+                <div class="flex flex-col items-center justify-center text-center py-8 px-6">
+                  <div class="w-20 h-20 rounded-3xl bg-slate-50 border border-slate-100 flex items-center justify-center mb-5">
+                    <i data-lucide="folder-open" class="w-9 h-9 text-slate-400"></i>
+                  </div>
+                  <h3 class="text-lg font-bold text-slate-900 mb-1.5">Aucun document trouvé</h3>
+                  <p class="text-sm text-slate-500 max-w-md">Aucun document ne correspond à vos critères. Modifiez les filtres ou créez un nouveau document.</p>
+                  <a href="{% url 'pedagogy:document_add' %}"
+                     class="mt-6 bg-indigo-600 text-white px-6 py-3 rounded-2xl font-bold text-sm hover:bg-indigo-700 shadow-indigo-glow flex items-center gap-2 transition-colors">
+                    <i data-lucide="plus" class="w-4 h-4"></i>
+                    Ajouter un document
+                  </a>
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    {# Pagination #}
+    {% if page_obj %}
+      {% include "components/navigation/pagination.html" %}
+    {% endif %}
+  </section>
+
+  {# Conteneur pour injection HTMX de la modale de détail #}
+  <div id="modal-container"></div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+  <script>lucide.createIcons();</script>
+{% endblock %}

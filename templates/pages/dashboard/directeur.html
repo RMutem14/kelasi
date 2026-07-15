@@ -1,0 +1,157 @@
+{% extends "layouts/dashboard.html" %}
+{% load huduma_tags %}
+
+{% block content %}
+
+  {# Badge rôle en haut #}
+  <div class="mb-6">
+    <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 text-sm font-semibold">
+      <i data-lucide="briefcase-business" class="w-4 h-4"></i>
+      Directeur des études
+    </span>
+  </div>
+
+  {# Stats cards #}
+  <section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5 mb-8">
+    {% for stat in stats_cards %}
+      {% include "components/cards/stats_card.html" with label=stat.label value=stat.value icon=stat.icon color=stat.color %}
+    {% endfor %}
+  </section>
+
+  {# Documents à valider #}
+  <section class="bg-white border border-slate-200 rounded-[28px] shadow-sm overflow-hidden mb-8">
+    <div class="px-6 py-5 border-b border-slate-100">
+      <h3 class="text-xl font-extrabold text-slate-900">Documents pédagogiques à traiter</h3>
+      <p class="text-sm text-slate-500 mt-0.5">
+        Le directeur peut uniquement valider ou demander une correction.
+      </p>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-left">
+        <thead class="bg-slate-50">
+          <tr class="text-sm text-slate-500">
+            <th class="px-6 py-4 font-semibold">Document</th>
+            <th class="px-6 py-4 font-semibold">Type</th>
+            <th class="px-6 py-4 font-semibold">Enseignant</th>
+            <th class="px-6 py-4 font-semibold">Classe</th>
+            <th class="px-6 py-4 font-semibold">Cours</th>
+            <th class="px-6 py-4 font-semibold">Statut</th>
+            <th class="px-6 py-4 font-semibold text-right">Décision</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 text-sm">
+          <tr class="hover:bg-slate-50">
+            <td class="px-6 py-5 font-bold text-slate-900">Préparation Algèbre</td>
+            <td class="px-6 py-5 text-slate-600">Fiche de préparation</td>
+            <td class="px-6 py-5 text-slate-600">Madame Amani</td>
+            <td class="px-6 py-5 text-slate-600">5ème A</td>
+            <td class="px-6 py-5 text-slate-600">Mathématiques</td>
+            <td class="px-6 py-5">
+              {% include "components/feedback/status_badge.html" with status="en_attente" %}
+            </td>
+            <td class="px-6 py-5">
+              <div class="flex justify-end gap-2">
+                <button class="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 hover:bg-indigo-100 flex items-center justify-center">
+                  <i data-lucide="eye" class="w-4 h-4"></i>
+                </button>
+                <button class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 hover:bg-emerald-100 flex items-center justify-center">
+                  <i data-lucide="check" class="w-4 h-4"></i>
+                </button>
+                <button class="w-9 h-9 rounded-xl bg-red-50 text-red-500 hover:bg-red-100 flex items-center justify-center">
+                  <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+          <tr class="hover:bg-slate-50">
+            <td class="px-6 py-5 font-bold text-slate-900">Journal du 2e trimestre</td>
+            <td class="px-6 py-5 text-slate-600">Journal de classe</td>
+            <td class="px-6 py-5 text-slate-600">Monsieur Kalala</td>
+            <td class="px-6 py-5 text-slate-600">6ème A</td>
+            <td class="px-6 py-5 text-slate-600">Français</td>
+            <td class="px-6 py-5">
+              <span class="px-3 py-1 rounded-full bg-red-50 text-red-500 font-semibold text-xs">
+                À corriger
+              </span>
+            </td>
+            <td class="px-6 py-5">
+              <div class="flex justify-end gap-2">
+                <button class="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 hover:bg-indigo-100 flex items-center justify-center">
+                  <i data-lucide="eye" class="w-4 h-4"></i>
+                </button>
+                <button class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 hover:bg-emerald-100 flex items-center justify-center">
+                  <i data-lucide="check" class="w-4 h-4"></i>
+                </button>
+                <button class="w-9 h-9 rounded-xl bg-red-50 text-red-500 hover:bg-red-100 flex items-center justify-center">
+                  <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  {# Lecture seule : classes et cours #}
+  <section class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+
+    {# Classes #}
+    <div class="bg-white border border-slate-200 rounded-[28px] shadow-sm overflow-hidden">
+      <div class="px-6 py-5 border-b border-slate-100">
+        <h3 class="text-xl font-extrabold text-slate-900">Classes</h3>
+        <p class="text-sm text-slate-500 mt-0.5">Consultation uniquement.</p>
+      </div>
+      <div class="divide-y divide-slate-100">
+        <div class="p-5 flex items-center justify-between">
+          <div>
+            <p class="font-bold text-slate-900">5ème A</p>
+            <p class="text-sm text-slate-500">Section scientifique · 32 élèves</p>
+          </div>
+          <button class="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 hover:bg-indigo-100 flex items-center justify-center">
+            <i data-lucide="eye" class="w-4 h-4"></i>
+          </button>
+        </div>
+        <div class="p-5 flex items-center justify-between">
+          <div>
+            <p class="font-bold text-slate-900">6ème A</p>
+            <p class="text-sm text-slate-500">Section pédagogique · 28 élèves</p>
+          </div>
+          <button class="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 hover:bg-indigo-100 flex items-center justify-center">
+            <i data-lucide="eye" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    {# Cours #}
+    <div class="bg-white border border-slate-200 rounded-[28px] shadow-sm overflow-hidden">
+      <div class="px-6 py-5 border-b border-slate-100">
+        <h3 class="text-xl font-extrabold text-slate-900">Cours</h3>
+        <p class="text-sm text-slate-500 mt-0.5">Consultation uniquement.</p>
+      </div>
+      <div class="divide-y divide-slate-100">
+        <div class="p-5 flex items-center justify-between">
+          <div>
+            <p class="font-bold text-slate-900">Mathématiques</p>
+            <p class="text-sm text-slate-500">5ème A · Madame Amani</p>
+          </div>
+          <button class="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 hover:bg-indigo-100 flex items-center justify-center">
+            <i data-lucide="eye" class="w-4 h-4"></i>
+          </button>
+        </div>
+        <div class="p-5 flex items-center justify-between">
+          <div>
+            <p class="font-bold text-slate-900">Français</p>
+            <p class="text-sm text-slate-500">6ème A · Monsieur Kalala</p>
+          </div>
+          <button class="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 hover:bg-indigo-100 flex items-center justify-center">
+            <i data-lucide="eye" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+{% endblock %}

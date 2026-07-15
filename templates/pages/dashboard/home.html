@@ -1,0 +1,9 @@
+{% extends "pages/dashboard/_dashboard_base.html" %}
+
+{% block dashboard_subtitle %}Tableau de bord générique (rôle non reconnu){% endblock %}
+
+{% block role_content %}
+  <div class="bg-amber-50 border border-amber-200 rounded-md p-4 text-sm text-amber-800">
+    Votre rôle n'est pas reconnu par le système. Contactez l'administrateur.
+  </div>
+{% endblock %}

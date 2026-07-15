@@ -1,0 +1,3 @@
+# requirements/prod.txt - dependances de production
+-r base.txt
+gunicorn>=22.0

@@ -1,0 +1,100 @@
+{% extends "layouts/dashboard.html" %}
+{% load static %}
+{% load huduma_tags %}
+
+{% block content %}
+<section class="max-w-5xl mx-auto bg-white border border-slate-200 rounded-[28px] shadow-sm p-8">
+
+  <!-- HEADER -->
+  <div class="flex items-start justify-between gap-6 mb-8">
+    <div>
+      <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 text-sm font-semibold mb-3">
+        <i data-lucide="plus" class="w-4 h-4"></i>
+        Nouvelle classe
+      </span>
+      <h1 class="text-3xl font-extrabold tracking-[-0.04em] text-slate-950">
+        Ajouter une classe
+      </h1>
+      <p class="text-slate-500 mt-2">
+        Créez une nouvelle classe et associez un titulaire.
+      </p>
+    </div>
+    <a href="{% url 'academic:classe_list' %}" class="w-11 h-11 rounded-2xl bg-slate-100 hover:bg-slate-200 flex items-center justify-center">
+      <i data-lucide="x" class="w-5 h-5"></i>
+    </a>
+  </div>
+
+  <!-- FORMULAIRE -->
+  <form method="post" class="space-y-8">
+    {% csrf_token %}
+
+    <div>
+      <h2 class="text-lg font-bold text-slate-900 mb-4">Informations générales</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div>
+          <label class="block text-sm font-semibold text-slate-700 mb-2">Nom de la classe *</label>
+          <input type="text" name="nom" required placeholder="Ex : 5ème A"
+            class="w-full h-12 px-4 rounded-2xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 outline-none">
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-slate-700 mb-2">Niveau</label>
+          <select name="niveau" class="w-full h-12 px-4 rounded-2xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 outline-none">
+            {% for value, label in niveau_choices %}
+              <option value="{{ value }}">{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-slate-700 mb-2">Section</label>
+          <input type="text" name="section" placeholder="Ex : Section scientifique"
+            class="w-full h-12 px-4 rounded-2xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 outline-none">
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-slate-700 mb-2">Effectif</label>
+          <input type="number" name="effectif" value="0" min="0"
+            class="w-full h-12 px-4 rounded-2xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 outline-none">
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <h2 class="text-lg font-bold text-slate-900 mb-4">Affectation</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div>
+          <label class="block text-sm font-semibold text-slate-700 mb-2">Titulaire</label>
+          <select name="titulaire" class="w-full h-12 px-4 rounded-2xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 outline-none">
+            <option value="">— Non affecté —</option>
+            {% for ens in enseignants %}
+              <option value="{{ ens.pk }}">{{ ens.full_name }} ({{ ens.email }})</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-slate-700 mb-2">Statut</label>
+          <select name="statut" class="w-full h-12 px-4 rounded-2xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 outline-none">
+            {% for value, label in statut_choices %}
+              <option value="{{ value }}">{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- ACTIONS -->
+    <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-200">
+      <a href="{% url 'academic:classe_list' %}" class="h-12 px-6 rounded-2xl border border-slate-200 text-slate-700 font-bold hover:bg-slate-50 flex items-center gap-2">
+        <i data-lucide="x" class="w-4 h-4"></i>
+        Annuler
+      </a>
+      <button type="submit" class="h-12 px-7 rounded-2xl bg-indigo-700 text-white font-bold hover:bg-indigo-800 shadow-lg shadow-indigo-200 flex items-center gap-2">
+        <i data-lucide="check" class="w-4 h-4"></i>
+        Enregistrer
+      </button>
+    </div>
+  </form>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>lucide.createIcons();</script>
+{% endblock %}

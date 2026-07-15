@@ -1,0 +1,33 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block title %}Connexion — {{ HUDUMA_NAME }}|Kelasi{% endblock %}
+
+{% block body %}
+  <div class="min-h-screen flex items-center justify-center bg-kelasi-bg px-4 py-12">
+    <div class="w-full max-w-md">
+
+      {# Logo / titre #}
+      <div class="text-center mb-8">
+        <div class="flex items-center justify-center gap-3 mb-4">
+          <img src="{% static 'img/logo_kelasi.png' %}" alt="Logo {{ HUDUMA_NAME }} Kelasi" class="w-14 h-14 object-contain">
+          <h1 class="text-[27px] font-extrabold tracking-[-0.04em] leading-none text-kelasi-deep">
+            {{ HUDUMA_NAME }}<span class="text-indigo-600 mx-[2px]">|</span>Kelasi
+          </h1>
+        </div>
+        <p class="text-sm text-slate-500">Plateforme pédagogique collaborative</p>
+        <p class="mt-1 text-xs text-slate-400">Collège Saint Joseph / Elikya</p>
+      </div>
+
+      {# Carte de formulaire #}
+      <div class="bg-white rounded-[28px] border border-slate-200 shadow-sm p-8">
+        {% block auth_content %}{% endblock %}
+      </div>
+
+      {# Footer #}
+      <p class="mt-6 text-center text-xs text-slate-400">
+        {{ HUDUMA_NAME }}|Kelasi v{{ HUDUMA_VERSION }} — Sprint 0
+      </p>
+    </div>
+  </div>
+{% endblock %}

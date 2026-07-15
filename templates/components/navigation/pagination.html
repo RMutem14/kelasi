@@ -1,0 +1,75 @@
+{# Composant réutilisable - voir design-system #}
+{% if page_obj.has_other_pages %}
+<nav class="flex items-center justify-between border-t border-slate-200 px-6 py-4" aria-label="Pagination">
+  <div class="text-sm text-slate-500">
+    Page {{ page_obj.number }} sur {{ page_obj.paginator.num_pages }}
+    <span class="hidden sm:inline">· {{ page_obj.paginator.count }} résultat(s)</span>
+  </div>
+
+  <div class="flex items-center gap-2">
+    {# Précédent #}
+    {% if page_obj.has_previous %}
+      {% if hx_target %}
+        <button hx-get="?page={{ page_obj.previous_page_number }}{% if querystring %}&{{ querystring }}{% endif %}"
+                hx-target="{{ hx_target }}"
+                class="w-9 h-9 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 flex items-center justify-center text-slate-600">
+          <i data-lucide="chevron-left" class="w-4 h-4"></i>
+        </button>
+      {% else %}
+        <a href="?page={{ page_obj.previous_page_number }}{% if querystring %}&{{ querystring }}{% endif %}"
+           class="w-9 h-9 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 flex items-center justify-center text-slate-600">
+          <i data-lucide="chevron-left" class="w-4 h-4"></i>
+        </a>
+      {% endif %}
+    {% else %}
+      <span class="w-9 h-9 rounded-xl border border-slate-100 bg-slate-50 flex items-center justify-center text-slate-300 cursor-not-allowed">
+        <i data-lucide="chevron-left" class="w-4 h-4"></i>
+      </span>
+    {% endif %}
+
+    {# Numéros de page #}
+    {% for num in page_obj.paginator.page_range %}
+      {% if num == page_obj.number %}
+        <span class="w-9 h-9 rounded-xl bg-indigo-600 text-white font-semibold flex items-center justify-center text-sm">
+          {{ num }}
+        </span>
+      {% elif num > page_obj.number|add:'-2' and num < page_obj.number|add:'2' %}
+        {% if hx_target %}
+          <button hx-get="?page={{ num }}{% if querystring %}&{{ querystring }}{% endif %}"
+                  hx-target="{{ hx_target }}"
+                  class="w-9 h-9 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 flex items-center justify-center text-sm text-slate-600">
+            {{ num }}
+          </button>
+        {% else %}
+          <a href="?page={{ num }}{% if querystring %}&{{ querystring }}{% endif %}"
+             class="w-9 h-9 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 flex items-center justify-center text-sm text-slate-600">
+            {{ num }}
+          </a>
+        {% endif %}
+      {% elif num == 1 or num == page_obj.paginator.num_pages %}
+        <span class="px-2 text-slate-400">…</span>
+      {% endif %}
+    {% endfor %}
+
+    {# Suivant #}
+    {% if page_obj.has_next %}
+      {% if hx_target %}
+        <button hx-get="?page={{ page_obj.next_page_number }}{% if querystring %}&{{ querystring }}{% endif %}"
+                hx-target="{{ hx_target }}"
+                class="w-9 h-9 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 flex items-center justify-center text-slate-600">
+          <i data-lucide="chevron-right" class="w-4 h-4"></i>
+        </button>
+      {% else %}
+        <a href="?page={{ page_obj.next_page_number }}{% if querystring %}&{{ querystring }}{% endif %}"
+           class="w-9 h-9 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 flex items-center justify-center text-slate-600">
+          <i data-lucide="chevron-right" class="w-4 h-4"></i>
+        </a>
+      {% endif %}
+    {% else %}
+      <span class="w-9 h-9 rounded-xl border border-slate-100 bg-slate-50 flex items-center justify-center text-slate-300 cursor-not-allowed">
+        <i data-lucide="chevron-right" class="w-4 h-4"></i>
+      </span>
+    {% endif %}
+  </div>
+</nav>
+{% endif %}

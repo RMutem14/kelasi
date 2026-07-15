@@ -1,0 +1,118 @@
+{# Navbar supérieure - design Kelasi #}
+<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6 w-full">
+
+  {# Gauche : burger (mobile) + titre + sous-titre #}
+  <div class="flex items-start gap-4">
+    <button
+      @click="sidebarOpen = !sidebarOpen"
+      class="xl:hidden p-2 -ml-2 rounded-xl bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 shadow-sm"
+      aria-label="Basculer la sidebar"
+    >
+      <i data-lucide="menu" class="w-5 h-5"></i>
+    </button>
+
+    <div>
+      <h2 class="text-[26px] lg:text-[34px] font-extrabold tracking-[-0.04em] text-kelasi-ink leading-tight">
+        {% block navbar_title %}{{ page_title|default:"Tableau de bord" }}{% endblock %}
+      </h2>
+      {% if page_subtitle %}
+        <p class="mt-1 text-slate-500 text-[14px] lg:text-[15px]">{{ page_subtitle }}</p>
+      {% endif %}
+    </div>
+  </div>
+
+  {# Droite : search + notifications + avatar + Nouveau #}
+  <div class="flex items-center gap-4">
+
+    {# Recherche (visible md+) #}
+    <div class="hidden md:flex items-center gap-3 w-[300px] lg:w-[360px] bg-white border border-slate-200 rounded-2xl px-5 py-3 shadow-sm">
+      <i data-lucide="search" class="w-5 h-5 text-slate-400"></i>
+      <input
+        type="text"
+        placeholder="Rechercher un utilisateur, une classe..."
+        class="w-full outline-none text-sm bg-transparent text-slate-700 placeholder:text-slate-400"
+      >
+    </div>
+
+    {# Bouton recherche mobile #}
+    <button class="md:hidden w-12 h-12 rounded-2xl bg-white border border-slate-200 flex items-center justify-center shadow-sm">
+      <i data-lucide="search" class="w-5 h-5 text-slate-600"></i>
+    </button>
+
+    {# Notifications avec badge dynamique #}
+    <a
+      href="{% url 'notifications:list' %}"
+      class="relative w-12 h-12 rounded-2xl bg-white border border-slate-200 flex items-center justify-center shadow-sm hover:bg-slate-50"
+      title="Notifications"
+    >
+      <i data-lucide="bell" class="w-5 h-5 text-slate-600"></i>
+      {% if unread_notifications_count > 0 %}
+        <span class="absolute top-1.5 right-1.5 min-w-[20px] h-5 px-1.5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center border-2 border-white">
+          {{ unread_notifications_count }}
+        </span>
+      {% endif %}
+    </a>
+
+    {# Bouton Nouveau (admin seulement) #}
+    {% if current_user_role == 'admin' %}
+      <button class="hidden sm:flex bg-indigo-600 text-white px-5 py-3 rounded-2xl font-bold items-center gap-2 shadow-indigo-glow hover:bg-indigo-700 transition-colors">
+        <i data-lucide="plus" class="w-5 h-5"></i>
+        Nouveau
+      </button>
+    {% endif %}
+
+    {# Menu utilisateur #}
+    <div class="relative" x-data="{ userMenuOpen: false }">
+      <button
+        @click="userMenuOpen = !userMenuOpen"
+        class="flex items-center gap-3 bg-white border border-slate-200 rounded-2xl px-3 py-2 shadow-sm hover:bg-slate-50"
+      >
+        <span class="w-10 h-10 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-extrabold">
+          {{ request.user.initials }}
+        </span>
+        <div class="hidden lg:block text-left">
+          <p class="text-sm font-bold text-slate-900 leading-tight">{{ request.user.full_name }}</p>
+          <p class="text-xs text-slate-500">{{ request.user.short_label }}</p>
+        </div>
+        <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 hidden lg:block"></i>
+      </button>
+
+      <div
+        x-show="userMenuOpen"
+        x-cloak
+        @click.outside="userMenuOpen = false"
+        x-transition:enter="transition ease-out duration-100"
+        x-transition:enter-start="opacity-0 scale-95"
+        x-transition:enter-end="opacity-100 scale-100"
+        x-transition:leave="transition ease-in duration-75"
+        x-transition:leave-start="opacity-100 scale-100"
+        x-transition:leave-end="opacity-0 scale-95"
+        class="absolute right-0 mt-2 w-64 bg-white border border-slate-200 rounded-2xl shadow-xl py-1 z-50"
+      >
+        <div class="px-5 py-4 border-b border-slate-100">
+          <p class="text-sm font-bold text-slate-900">{{ request.user.full_name }}</p>
+          <p class="text-xs text-slate-500 mt-0.5">{{ request.user.email }}</p>
+          <p class="mt-2">
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700">
+              {{ request.user.short_label }}
+            </span>
+          </p>
+        </div>
+        <a href="{% url 'dashboard:home' %}" class="flex items-center gap-3 px-5 py-2.5 text-sm text-slate-700 hover:bg-slate-50">
+          <i data-lucide="layout-dashboard" class="w-4 h-4 text-slate-400"></i>
+          Tableau de bord
+        </a>
+        <a href="{% url 'dashboard:profile' %}" class="flex items-center gap-3 px-5 py-2.5 text-sm text-slate-700 hover:bg-slate-50">
+          <i data-lucide="user" class="w-4 h-4 text-slate-400"></i>
+          Mon profil
+        </a>
+        <div class="border-t border-slate-100 my-1"></div>
+        <a href="{% url 'accounts:logout' %}"
+           class="flex items-center gap-3 px-5 py-2.5 text-sm text-red-600 hover:bg-red-50">
+          <i data-lucide="log-out" class="w-4 h-4"></i>
+          Déconnexion
+        </a>
+      </div>
+    </div>
+  </div>
+</div>

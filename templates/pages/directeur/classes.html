@@ -1,0 +1,124 @@
+{% extends "layouts/dashboard.html" %}
+{% load huduma_tags %}
+{% load static %}
+
+{% block content %}
+
+  {# ============================================================ #}
+  {# Header : badge lecture seule + intro #}
+  {# ============================================================ #}
+  <section class="mb-8">
+    <div class="mb-5">
+      <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 text-slate-600 text-sm font-semibold">
+        <i data-lucide="eye-off" class="w-4 h-4"></i>
+        Lecture seule
+      </span>
+    </div>
+    <p class="text-sm text-slate-500 max-w-2xl">
+      Consultez la liste des classes de l'établissement. En tant que
+      directeur des études, vous disposez d'un accès en lecture uniquement —
+      pour toute modification, contactez l'administrateur.
+    </p>
+  </section>
+
+  {# ============================================================ #}
+  {# Grille des classes (cartes visuelles) #}
+  {# ============================================================ #}
+  <section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+
+    {% for classe in classes %}
+      <article class="bg-white border border-slate-200 rounded-[28px] shadow-sm p-6 hover:shadow-md transition-shadow flex flex-col">
+
+        {# En-tête : avatar + nom + section + statut #}
+        <div class="flex items-start gap-4 mb-5">
+          <span class="w-14 h-14 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-extrabold text-lg flex-shrink-0">
+            {{ classe.initials }}
+          </span>
+          <div class="min-w-0 flex-1">
+            <h3 class="text-xl font-extrabold text-slate-900 truncate">{{ classe.nom }}</h3>
+            <p class="text-sm text-slate-500 truncate">
+              {{ classe.section|default:"Section non précisée" }}
+            </p>
+          </div>
+          {# Statut badge #}
+          <div class="flex-shrink-0">
+            {% if classe.statut == 'active' %}
+              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-600 font-semibold text-xs">
+                <i data-lucide="check-circle" class="w-3 h-3"></i>
+                Active
+              </span>
+            {% elif classe.statut == 'suspendue' %}
+              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-50 text-red-600 font-semibold text-xs">
+                <i data-lucide="pause-circle" class="w-3 h-3"></i>
+                Suspendue
+              </span>
+            {% elif classe.statut == 'a_completer' %}
+              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 text-amber-600 font-semibold text-xs">
+                <i data-lucide="alert-circle" class="w-3 h-3"></i>
+                À compléter
+              </span>
+            {% else %}
+              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 text-slate-600 font-semibold text-xs">
+                {{ classe.get_statut_display }}
+              </span>
+            {% endif %}
+          </div>
+        </div>
+
+        {# Ligne d'info : Niveau | Effectif #}
+        <div class="grid grid-cols-2 gap-3 mb-5">
+          <div class="bg-slate-50 rounded-2xl px-4 py-3">
+            <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Niveau</p>
+            <p class="text-sm font-bold text-slate-900 mt-0.5">{{ classe.get_niveau_display }}</p>
+          </div>
+          <div class="bg-slate-50 rounded-2xl px-4 py-3">
+            <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Effectif</p>
+            <p class="text-sm font-bold text-slate-900 mt-0.5">
+              {{ classe.effectif }}
+              <span class="text-slate-400 text-xs font-medium">élèves</span>
+            </p>
+          </div>
+        </div>
+
+        {# Titulaire #}
+        <div class="flex items-center gap-3 mb-6 pb-5 border-b border-slate-100">
+          <span class="w-9 h-9 rounded-full {% if classe.titulaire %}bg-indigo-100 text-indigo-700{% else %}bg-slate-100 text-slate-400{% endif %} flex items-center justify-center flex-shrink-0">
+            {% if classe.titulaire %}
+              <span class="font-bold text-xs">{{ classe.titulaire.initials }}</span>
+            {% else %}
+              <i data-lucide="user-x" class="w-4 h-4"></i>
+            {% endif %}
+          </span>
+          <div class="min-w-0">
+            <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Titulaire</p>
+            {% if classe.titulaire %}
+              <p class="text-sm font-bold text-slate-900 truncate">{{ classe.titulaire.full_name }}</p>
+            {% else %}
+              <p class="text-sm font-semibold text-slate-400">Non affecté</p>
+            {% endif %}
+          </div>
+        </div>
+
+        {# Bouton Consulter (read-only) #}
+        <button
+          type="button"
+          onclick="alert('Consultation en lecture seule.\nClasse : {{ classe.nom|escapejs }}')"
+          class="mt-auto w-full inline-flex items-center justify-center gap-2 bg-indigo-50 text-indigo-600 px-5 py-3 rounded-2xl font-bold text-sm hover:bg-indigo-100 transition-colors"
+        >
+          <i data-lucide="eye" class="w-4 h-4"></i>
+          Consulter
+        </button>
+      </article>
+    {% empty %}
+      <div class="col-span-full">
+        {% include "components/feedback/empty_state.html" with icon="school" title="Aucune classe trouvée" message="Aucune classe n'est enregistrée dans l'établissement pour le moment." %}
+      </div>
+    {% endfor %}
+
+  </section>
+
+{% endblock %}
+
+{% block extra_scripts %}
+  <script>lucide.createIcons();</script>
+{% endblock %}

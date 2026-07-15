@@ -1,0 +1,47 @@
+{# Layout commun pour les dashboards par rôle - utilisé par admin/enseignant/directeur/eleve #}
+{% extends "layouts/dashboard.html" %}
+
+{% block content %}
+  {# En-tête de page #}
+  <div class="mb-6">
+    <h2 class="text-xl lg:text-2xl font-bold text-slate-800">
+      Bienvenue, {{ request.user.first_name }} 👋
+    </h2>
+    <p class="mt-1 text-sm text-slate-500">
+      {% block dashboard_subtitle %}Vue d'ensemble de votre activité{% endblock %}
+    </p>
+  </div>
+
+  {# Cartes statistiques #}
+  {% if stats_cards %}
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      {% for stat in stats_cards %}
+        <div class="bg-white rounded-lg border border-slate-200 p-5 shadow-sm">
+          <div class="flex items-start justify-between">
+            <div>
+              <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">
+                {{ stat.label }}
+              </p>
+              <p class="mt-2 text-3xl font-bold text-slate-800">
+                {{ stat.value }}
+              </p>
+            </div>
+            <span class="inline-flex items-center justify-center w-10 h-10 rounded-md bg-{{ stat.color|default:'indigo' }}-100 text-{{ stat.color|default:'indigo' }}-600 text-lg">
+              •
+            </span>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  {# Contenu spécifique au rôle #}
+  {% block role_content %}{% endblock %}
+
+  {# Note Sprint 0 #}
+  <div class="mt-8 rounded-md bg-sky-50 border border-sky-200 p-4 text-sm text-sky-800">
+    <strong>Sprint 0 — Fondations techniques.</strong>
+    Les statistiques affichées sont fictives. Les modules métier seront
+    implémentés à partir du Sprint 1.
+  </div>
+{% endblock %}

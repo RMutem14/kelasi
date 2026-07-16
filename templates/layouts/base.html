@@ -46,17 +46,43 @@
   {# HTMX #}
   <script src="{% static 'js/htmx.min.js' %}"></script>
 
+  {# Offline storage (IndexedDB) #}
+  <script src="{% static 'js/offline-db.js' %}"></script>
+
+  {# Service Worker registration #}
+  <script src="{% static 'js/sw-register.js' %}"></script>
+
   {# Alpine.js #}
   <script defer src="https://unpkg.com/alpinejs@3.13.5/dist/cdn.min.js"></script>
 
   <style>
     body { font-family: 'Inter', system-ui, sans-serif; }
     [x-cloak] { display: none !important; }
+    .huduma-offline-banner {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 9999;
+      background: #f59e0b;
+      color: #fff;
+      text-align: center;
+      padding: 8px 16px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    body.huduma-offline .huduma-offline-banner { display: block; }
+    body.huduma-offline .huduma-offline-banner ~ * { padding-top: 0; }
   </style>
 
   {% block extra_head %}{% endblock %}
 </head>
 <body class="bg-white text-kelasi-ink antialiased">
+
+  <div class="huduma-offline-banner">
+    Vous êtes hors ligne. Les données seront synchronisées à votre retour.
+  </div>
 
   {% block body %}{% endblock %}
 

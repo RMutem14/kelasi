@@ -13,12 +13,10 @@ Vues d'auth :
 from django.contrib.auth import logout as auth_logout
 from django.contrib.auth.views import LoginView as DjangoLoginView
 from django.contrib import messages
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
 from django.views import View
-from django.views.generic import ListView, TemplateView
+from django.views.generic import ListView
 
 from apps.accounts.enums import UserRole
 from apps.accounts.models import User
@@ -57,9 +55,15 @@ class UserListView(RoleRequiredMixin, ListView):
     """Liste des utilisateurs avec filtres par rôle."""
     model = User
     template_name = "pages/admin/users/index.html"
+    partial_template_name = "pages/admin/users/_user_list.html"
     context_object_name = "users"
     paginate_by = 10
     allowed_roles = [UserRole.ADMIN]
+
+    def get_template_names(self):
+        if self.request.headers.get("HX-Request") == "true":
+            return [self.partial_template_name]
+        return super().get_template_names()
 
     def get_queryset(self):
         qs = User.objects.select_related("created_by").all().order_by("-date_joined")
@@ -87,6 +91,12 @@ class UserListView(RoleRequiredMixin, ListView):
             "eleves": User.objects.filter(role=UserRole.ELEVE).count(),
             "directeurs": User.objects.filter(role=UserRole.DIRECTEUR_ETUDES).count(),
         }
+        qs_params = []
+        if ctx["active_role_filter"]:
+            qs_params.append(f"role={ctx['active_role_filter']}")
+        if ctx["search_query"]:
+            qs_params.append(f"search={ctx['search_query']}")
+        ctx["pagination_querystring"] = "&".join(qs_params)
         return ctx
 
 

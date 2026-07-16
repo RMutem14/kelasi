@@ -4,7 +4,7 @@ Vues de l'application marketplace.
 Catalogue, publication de ressources, achat simulé, téléchargement.
 """
 from django.contrib import messages
-from django.http import HttpResponse
+from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views import View
 from django.views.generic import ListView
@@ -21,8 +21,14 @@ class CatalogView(ListView):
     """Catalogue public des ressources publiées (tous les rôles connectés)."""
     model = Resource
     template_name = "pages/marketplace/catalog.html"
+    partial_template_name = "pages/marketplace/_catalog_grid.html"
     context_object_name = "ressources"
     paginate_by = 12
+
+    def get_template_names(self):
+        if self.request.headers.get("HX-Request") == "true":
+            return [self.partial_template_name]
+        return super().get_template_names()
 
     def get_queryset(self):
         qs = Resource.objects.select_related("auteur", "classe", "cours").filter(
@@ -43,6 +49,13 @@ class CatalogView(ListView):
         ctx["type_choices"] = ResourceType.choices
         ctx["active_type"] = self.request.GET.get("type", "")
         ctx["search_query"] = self.request.GET.get("search", "")
+        # Querystring pour la pagination HTMX (préserve filtres + recherche)
+        qs_params = []
+        if ctx["active_type"]:
+            qs_params.append(f"type={ctx['active_type']}")
+        if ctx["search_query"]:
+            qs_params.append(f"search={ctx['search_query']}")
+        ctx["pagination_querystring"] = "&".join(qs_params)
         return ctx
 
 
@@ -128,22 +141,38 @@ class MyResourcesView(RoleRequiredMixin, ListView):
     """Ressources publiées par l'enseignant connecté."""
     model = Resource
     template_name = "pages/marketplace/my_resources.html"
+    partial_template_name = "pages/marketplace/_my_resources_table.html"
     context_object_name = "ressources"
     allowed_roles = [UserRole.ENSEIGNANT, UserRole.ADMIN]
+    paginate_by = 10
+
+    def get_template_names(self):
+        if self.request.headers.get("HX-Request") == "true":
+            return [self.partial_template_name]
+        return super().get_template_names()
 
     def get_queryset(self):
-        return Resource.objects.filter(auteur=self.request.user).order_by("-created_at")
+        qs = Resource.objects.filter(auteur=self.request.user).order_by("-created_at")
+        search = self.request.GET.get("search", "").strip()
+        if search:
+            qs = qs.filter(titre__icontains=search)
+        return qs
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         ctx["page_title"] = "Mes ressources"
         ctx["page_subtitle"] = "Gérez vos ressources publiées."
+        ctx["search_query"] = self.request.GET.get("search", "")
         ctx["stats"] = {
             "total": Resource.objects.filter(auteur=self.request.user).count(),
             "publiees": Resource.objects.filter(auteur=self.request.user, statut=PublicationStatus.PUBLIE).count(),
             "brouillons": Resource.objects.filter(auteur=self.request.user, statut=PublicationStatus.BROUILLON).count(),
             "ventes": Order.objects.filter(ressource__auteur=self.request.user, statut=OrderStatus.PAYE).count(),
         }
+        if ctx["search_query"]:
+            ctx["pagination_querystring"] = f"search={ctx['search_query']}"
+        else:
+            ctx["pagination_querystring"] = ""
         return ctx
 
 
@@ -151,24 +180,42 @@ class MySalesView(RoleRequiredMixin, ListView):
     """Ventes de l'enseignant connecté."""
     model = Order
     template_name = "pages/marketplace/my_sales.html"
+    partial_template_name = "pages/marketplace/_my_sales_table.html"
     context_object_name = "commandes"
     allowed_roles = [UserRole.ENSEIGNANT, UserRole.ADMIN]
+    paginate_by = 10
+
+    def get_template_names(self):
+        if self.request.headers.get("HX-Request") == "true":
+            return [self.partial_template_name]
+        return super().get_template_names()
 
     def get_queryset(self):
-        return Order.objects.filter(
+        qs = Order.objects.filter(
             ressource__auteur=self.request.user, statut=OrderStatus.PAYE
         ).select_related("eleve", "ressource").order_by("-created_at")
+        search = self.request.GET.get("search", "").strip()
+        if search:
+            qs = qs.filter(
+                Q(ressource__titre__icontains=search) | Q(eleve__first_name__icontains=search) | Q(eleve__last_name__icontains=search)
+            )
+        return qs
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         ctx["page_title"] = "Mes ventes"
         ctx["page_subtitle"] = "Suivez les ventes de vos ressources."
+        ctx["search_query"] = self.request.GET.get("search", "")
         from django.db.models import Sum
         ventes = Order.objects.filter(ressource__auteur=self.request.user, statut=OrderStatus.PAYE)
         ctx["stats"] = {
             "total_ventes": ventes.count(),
             "revenu_total": ventes.aggregate(total=Sum("montant"))["total"] or 0,
         }
+        if ctx["search_query"]:
+            ctx["pagination_querystring"] = f"search={ctx['search_query']}"
+        else:
+            ctx["pagination_querystring"] = ""
         return ctx
 
 
@@ -176,18 +223,34 @@ class MyPurchasesView(RoleRequiredMixin, ListView):
     """Achats de l'utilisateur connecté."""
     model = Order
     template_name = "pages/marketplace/my_purchases.html"
+    partial_template_name = "pages/marketplace/_my_purchases_table.html"
     context_object_name = "commandes"
     allowed_roles = [UserRole.ELEVE, UserRole.ENSEIGNANT, UserRole.ADMIN]
+    paginate_by = 10
+
+    def get_template_names(self):
+        if self.request.headers.get("HX-Request") == "true":
+            return [self.partial_template_name]
+        return super().get_template_names()
 
     def get_queryset(self):
-        return Order.objects.filter(
+        qs = Order.objects.filter(
             eleve=self.request.user
         ).select_related("ressource").order_by("-created_at")
+        search = self.request.GET.get("search", "").strip()
+        if search:
+            qs = qs.filter(ressource__titre__icontains=search)
+        return qs
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         ctx["page_title"] = "Mes achats"
         ctx["page_subtitle"] = "Vos commandes et ressources achetées."
+        ctx["search_query"] = self.request.GET.get("search", "")
+        if ctx["search_query"]:
+            ctx["pagination_querystring"] = f"search={ctx['search_query']}"
+        else:
+            ctx["pagination_querystring"] = ""
         return ctx
 
 

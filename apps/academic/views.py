@@ -4,13 +4,14 @@ Vues de gestion académique (admin).
 CRUD pour les classes, cours et évaluations.
 """
 from django.contrib import messages
-from django.http import HttpResponse
+from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views import View
 from django.views.generic import ListView
 
 from apps.accounts.enums import UserRole
-from apps.academic.models import Classe, Cours, Evaluation
+from apps.accounts.models import User
+from apps.academic.models import AnneeScolaire, Classe, Cours, Evaluation
 from apps.core.mixins import RoleRequiredMixin
 
 
@@ -22,14 +23,26 @@ class ClasseListView(RoleRequiredMixin, ListView):
     """Liste des classes."""
     model = Classe
     template_name = "pages/admin/classes/index.html"
+    partial_template_name = "pages/admin/classes/_classe_list.html"
     context_object_name = "classes"
     allowed_roles = [UserRole.ADMIN, UserRole.DIRECTEUR_ETUDES]
+    paginate_by = 10
+
+    def get_template_names(self):
+        if self.request.headers.get("HX-Request") == "true":
+            return [self.partial_template_name]
+        return super().get_template_names()
 
     def get_queryset(self):
         qs = Classe.objects.select_related("titulaire", "annee_scolaire").all().order_by("nom")
         statut = self.request.GET.get("statut", "")
+        search = self.request.GET.get("search", "").strip()
         if statut:
             qs = qs.filter(statut=statut)
+        if search:
+            qs = qs.filter(
+                Q(nom__icontains=search) | Q(section__icontains=search)
+            )
         return qs
 
     def get_context_data(self, **kwargs):
@@ -37,12 +50,19 @@ class ClasseListView(RoleRequiredMixin, ListView):
         ctx["page_title"] = "Gestion des classes"
         ctx["page_subtitle"] = "Créez, organisez et suivez les classes disponibles."
         ctx["active_statut"] = self.request.GET.get("statut", "")
+        ctx["search_query"] = self.request.GET.get("search", "")
         ctx["stats"] = {
             "total": Classe.objects.count(),
             "actives": Classe.objects.filter(statut=Classe.Statut.ACTIVE).count(),
             "suspendues": Classe.objects.filter(statut=Classe.Statut.SUSPENDUE).count(),
             "sans_titulaire": Classe.objects.filter(titulaire__isnull=True).count(),
         }
+        qs_params = []
+        if ctx["active_statut"]:
+            qs_params.append(f"statut={ctx['active_statut']}")
+        if ctx["search_query"]:
+            qs_params.append(f"search={ctx['search_query']}")
+        ctx["pagination_querystring"] = "&".join(qs_params)
         return ctx
 
 
@@ -65,12 +85,10 @@ class ClasseCreateView(RoleRequiredMixin, View):
     template_name = "pages/admin/classes/ajouter.html"
 
     def get(self, request):
-        from apps.academic.models import AnneeScolaire
-        enseignants = UserRole  # pour le template
         ctx = {
             "page_title": "Ajouter une classe",
             "page_subtitle": "Créez une nouvelle classe et associez un titulaire.",
-            "enseignants": __import__("apps.accounts.models", fromlist=["User"]).User.objects.filter(
+            "enseignants": User.objects.filter(
                 role=UserRole.ENSEIGNANT, is_active=True
             ),
             "annees": AnneeScolaire.objects.all(),
@@ -91,7 +109,6 @@ class ClasseCreateView(RoleRequiredMixin, View):
             messages.error(request, "Le nom de la classe est obligatoire.")
             return redirect("academic:classe_add")
 
-        from apps.accounts.models import User
         titulaire = User.objects.filter(pk=titulaire_id).first() if titulaire_id else None
 
         Classe.objects.create(
@@ -111,14 +128,27 @@ class CoursListView(RoleRequiredMixin, ListView):
     """Liste des cours."""
     model = Cours
     template_name = "pages/admin/cours/index.html"
+    partial_template_name = "pages/admin/cours/_cours_list.html"
     context_object_name = "cours_list"
     allowed_roles = [UserRole.ADMIN, UserRole.DIRECTEUR_ETUDES]
+    paginate_by = 10
+
+    def get_template_names(self):
+        if self.request.headers.get("HX-Request") == "true":
+            return [self.partial_template_name]
+        return super().get_template_names()
 
     def get_queryset(self):
         qs = Cours.objects.select_related("classe", "enseignant").all().order_by("classe__nom", "nom")
         statut = self.request.GET.get("statut", "")
+        search = self.request.GET.get("search", "").strip()
         if statut:
             qs = qs.filter(statut=statut)
+        if search:
+            qs = qs.filter(
+                Q(nom__icontains=search) | Q(code__icontains=search) |
+                Q(enseignant__first_name__icontains=search) | Q(enseignant__last_name__icontains=search)
+            )
         return qs
 
     def get_context_data(self, **kwargs):
@@ -126,12 +156,19 @@ class CoursListView(RoleRequiredMixin, ListView):
         ctx["page_title"] = "Gestion des cours"
         ctx["page_subtitle"] = "Organisez les matières, les enseignants et les classes associées."
         ctx["active_statut"] = self.request.GET.get("statut", "")
+        ctx["search_query"] = self.request.GET.get("search", "")
         ctx["stats"] = {
             "total": Cours.objects.count(),
             "enseignants": Cours.objects.filter(enseignant__isnull=False).values("enseignant").distinct().count(),
             "classes": Cours.objects.values("classe").distinct().count(),
             "sans_enseignant": Cours.objects.filter(enseignant__isnull=True).count(),
         }
+        qs_params = []
+        if ctx["active_statut"]:
+            qs_params.append(f"statut={ctx['active_statut']}")
+        if ctx["search_query"]:
+            qs_params.append(f"search={ctx['search_query']}")
+        ctx["pagination_querystring"] = "&".join(qs_params)
         return ctx
 
 
@@ -150,7 +187,6 @@ class CoursCreateView(RoleRequiredMixin, View):
     template_name = "pages/admin/cours/ajouter.html"
 
     def get(self, request):
-        from apps.accounts.models import User
         ctx = {
             "page_title": "Ajouter un cours",
             "page_subtitle": "Créez un cours et associez-le à une classe et un enseignant.",
@@ -172,7 +208,6 @@ class CoursCreateView(RoleRequiredMixin, View):
             messages.error(request, "Nom, code et classe sont obligatoires.")
             return redirect("academic:cours_add")
 
-        from apps.accounts.models import User
         classe = get_object_or_404(Classe, pk=classe_id)
         enseignant = User.objects.filter(pk=enseignant_id).first() if enseignant_id else None
 
@@ -227,7 +262,6 @@ class EvaluationCreateView(RoleRequiredMixin, View):
     template_name = "pages/admin/evaluation/ajouter.html"
 
     def get(self, request):
-        from apps.accounts.models import User
         ctx = {
             "page_title": "Ajouter une évaluation",
             "page_subtitle": "Créez un devoir, interrogation ou examen.",
@@ -254,7 +288,6 @@ class EvaluationCreateView(RoleRequiredMixin, View):
             messages.error(request, "Titre, classe et cours sont obligatoires.")
             return redirect("academic:evaluation_add")
 
-        from apps.accounts.models import User
         classe = get_object_or_404(Classe, pk=classe_id)
         cours = get_object_or_404(Cours, pk=cours_id)
         enseignant = User.objects.filter(pk=enseignant_id).first() if enseignant_id else request.user
@@ -288,8 +321,6 @@ class ClasseEditView(RoleRequiredMixin, View):
 
     def get(self, request, pk):
         classe = get_object_or_404(Classe, pk=pk)
-        from apps.accounts.models import User
-        from apps.academic.models import AnneeScolaire
         ctx = {
             "page_title": "Modifier la classe",
             "page_subtitle": f"Édition de '{classe.nom}'",
@@ -335,7 +366,6 @@ class CoursEditView(RoleRequiredMixin, View):
 
     def get(self, request, pk):
         cours = get_object_or_404(Cours, pk=pk)
-        from apps.accounts.models import User
         ctx = {
             "page_title": "Modifier le cours",
             "page_subtitle": f"Édition de '{cours.nom}'",
@@ -381,7 +411,6 @@ class EvaluationEditView(RoleRequiredMixin, View):
 
     def get(self, request, pk):
         evaluation = get_object_or_404(Evaluation, pk=pk)
-        from apps.accounts.models import User
         ctx = {
             "page_title": "Modifier l'évaluation",
             "page_subtitle": f"Édition de '{evaluation.titre}'",

@@ -39,6 +39,9 @@
       <i data-lucide="search" class="w-5 h-5 text-slate-600"></i>
     </button>
 
+    {# Language switcher #}
+    {% include "partials/language_switcher.html" %}
+
     {# Notifications avec badge dynamique #}
     <a
       href="{% url 'notifications:list' %}"

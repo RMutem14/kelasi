@@ -14,7 +14,6 @@ Pour ajouter une nouvelle passerelle :
 """
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from typing import Optional
 
 
 @dataclass

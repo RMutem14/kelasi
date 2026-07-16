@@ -23,7 +23,10 @@
     </div>
 
     {% if non_lues > 0 %}
-      <form method="post" action="{% url 'notifications:mark_all_read' %}">
+      <form method="post" action="{% url 'notifications:mark_all_read' %}"
+            hx-post="{% url 'notifications:mark_all_read' %}"
+            hx-target="#notif-list"
+            hx-swap="innerHTML">
         {% csrf_token %}
         <button type="submit"
                 class="bg-indigo-600 text-white px-5 py-3 rounded-2xl font-bold flex items-center justify-center gap-2 shadow-indigo-glow hover:bg-indigo-700 transition-colors whitespace-nowrap">
@@ -37,13 +40,14 @@
   {# ============================================================ #}
   {# Liste des notifications #}
   {# ============================================================ #}
-  <section>
+  <section id="notif-list">
     {% if notifications %}
       <div class="space-y-4">
         {% for notif in notifications %}
           <article
             class="bg-white border border-slate-200 rounded-[24px] shadow-sm overflow-hidden flex flex-col sm:flex-row sm:items-center gap-4 p-5 transition-colors
-              {% if not notif.lu %}border-l-4 border-l-{{ notif.couleur }}-500{% else %}bg-slate-50/60{% endif %}">
+              {% if not notif.lu %}border-l-4 border-l-{{ notif.couleur }}-500{% else %}bg-slate-50/60{% endif %}"
+            id="notif-{{ notif.pk }}">
 
             {# Gauche : icône dans cercle coloré #}
             <div class="flex-shrink-0">
@@ -88,7 +92,10 @@
               {% endif %}
 
               {% if not notif.lu %}
-                <form method="post" action="{% url 'notifications:mark_read' notif.pk %}">
+                <form method="post" action="{% url 'notifications:mark_read' notif.pk %}"
+                      hx-post="{% url 'notifications:mark_read' notif.pk %}"
+                      hx-target="#notif-{{ notif.pk }}"
+                      hx-swap="outerHTML">
                   {% csrf_token %}
                   <button type="submit"
                           class="inline-flex items-center gap-1.5 bg-indigo-600 text-white px-4 py-2 rounded-xl font-bold text-xs hover:bg-indigo-700 transition-colors">

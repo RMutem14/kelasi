@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<style>
+  @page {
+    size: A4;
+    margin: 1.5cm 2cm;
+    @bottom-center {
+      content: "Collège Saint Joseph/Elikya — Bulletin de notes — Page " counter(page) " / " counter(pages);
+      font-size: 8pt;
+      color: #666;
+    }
+  }
+  body {
+    font-family: "Helvetica", "Arial", sans-serif;
+    font-size: 10pt;
+    color: #1a1a1a;
+    line-height: 1.5;
+  }
+  .header {
+    text-align: center;
+    margin-bottom: 20px;
+    border-bottom: 3px solid #4f46e5;
+    padding-bottom: 15px;
+  }
+  .header h1 {
+    font-size: 18pt;
+    margin: 0;
+    color: #4f46e5;
+  }
+  .header .devise {
+    font-size: 9pt;
+    color: #666;
+    font-style: italic;
+    margin-top: 4px;
+  }
+  .header .adresse {
+    font-size: 8pt;
+    color: #999;
+    margin-top: 2px;
+  }
+  .bulletin-title {
+    text-align: center;
+    font-size: 14pt;
+    font-weight: bold;
+    margin: 20px 0 15px 0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .info-grid {
+    display: table;
+    width: 100%;
+    margin-bottom: 20px;
+  }
+  .info-row {
+    display: table-row;
+  }
+  .info-cell {
+    display: table-cell;
+    padding: 6px 12px;
+    border: 1px solid #ddd;
+    font-size: 10pt;
+  }
+  .info-label {
+    font-weight: bold;
+    background: #f5f5f5;
+    width: 25%;
+  }
+  .info-value {
+    width: 25%;
+  }
+  table.notes {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+  }
+  table.notes th {
+    background: #4f46e5;
+    color: white;
+    padding: 8px 6px;
+    text-align: center;
+    font-size: 9pt;
+    border: 1px solid #4f46e5;
+  }
+  table.notes th:first-child {
+    text-align: left;
+  }
+  table.notes td {
+    padding: 6px;
+    border: 1px solid #ddd;
+    text-align: center;
+    font-size: 10pt;
+  }
+  table.notes td:first-child {
+    text-align: left;
+    font-weight: 500;
+  }
+  table.notes tr:nth-child(even) {
+    background: #f9f9ff;
+  }
+  table.notes tfoot td {
+    background: #f0f0ff;
+    font-weight: bold;
+    border-top: 2px solid #4f46e5;
+    font-size: 11pt;
+  }
+  .mention-box {
+    text-align: center;
+    margin: 20px 0;
+    padding: 12px;
+    border: 2px solid #4f46e5;
+    border-radius: 8px;
+    background: #f5f5ff;
+  }
+  .mention-box .label {
+    font-size: 9pt;
+    color: #666;
+    text-transform: uppercase;
+  }
+  .mention-box .value {
+    font-size: 16pt;
+    font-weight: bold;
+    color: #4f46e5;
+  }
+  .observation {
+    margin: 15px 0;
+    padding: 10px;
+    border: 1px dashed #ccc;
+    font-size: 9pt;
+    color: #555;
+    min-height: 40px;
+  }
+  .signatures {
+    display: table;
+    width: 100%;
+    margin-top: 40px;
+  }
+  .signature-cell {
+    display: table-cell;
+    text-align: center;
+    width: 33%;
+    font-size: 9pt;
+  }
+  .signature-line {
+    margin-top: 40px;
+    border-top: 1px solid #333;
+    padding-top: 4px;
+  }
+  .footer-note {
+    text-align: center;
+    font-size: 8pt;
+    color: #999;
+    margin-top: 20px;
+    border-top: 1px solid #eee;
+    padding-top: 8px;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>{{ etablissement.nom }}</h1>
+  <div class="devise">{{ etablissement.devise }}</div>
+  <div class="adresse">{{ etablissement.adresse }}</div>
+</div>
+
+<div class="bulletin-title">Bulletin de Notes</div>
+
+<div class="info-grid">
+  <div class="info-row">
+    <div class="info-cell info-label">Élève</div>
+    <div class="info-cell info-value">{{ bulletin.eleve.full_name }}</div>
+    <div class="info-cell info-label">Classe</div>
+    <div class="info-cell info-value">{{ bulletin.classe.nom }}</div>
+  </div>
+  <div class="info-row">
+    <div class="info-cell info-label">Période</div>
+    <div class="info-cell info-value">{{ bulletin.periode.libelle }}</div>
+    <div class="info-cell info-label">Année scolaire</div>
+    <div class="info-cell info-value">{{ bulletin.annee_scolaire.libelle }}</div>
+  </div>
+  <div class="info-row">
+    <div class="info-cell info-label">Rang</div>
+    <div class="info-cell info-value">{{ bulletin.rang|default:"—" }} / {{ bulletin.effectif_classe }}</div>
+    <div class="info-cell info-label">Effectif</div>
+    <div class="info-cell info-value">{{ bulletin.effectif_classe }} élèves</div>
+  </div>
+</div>
+
+<table class="notes">
+  <thead>
+    <tr>
+      <th>Cours</th>
+      <th>Coef.</th>
+      <th>Moyenne /20</th>
+      <th>Points</th>
+      <th>Mention</th>
+      <th>Appréciation</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for ligne in lignes %}
+    <tr>
+      <td>{{ ligne.cours.nom }}</td>
+      <td>{{ ligne.coefficient }}</td>
+      <td>{{ ligne.moyenne_cours|floatformat:2 }}</td>
+      <td>{{ ligne.points|floatformat:2 }}</td>
+      <td>{{ ligne.mention_cours }}</td>
+      <td>{{ ligne.appreciation }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+  <tfoot>
+    <tr>
+      <td>TOTAL</td>
+      <td>{{ bulletin.total_coefficients }}</td>
+      <td>{{ bulletin.moyenne_generale|floatformat:2 }}</td>
+      <td>{{ bulletin.total_points|floatformat:2 }}</td>
+      <td colspan="2">{{ bulletin.mention }}</td>
+    </tr>
+  </tfoot>
+</table>
+
+<div class="mention-box">
+  <div class="label">Moyenne générale</div>
+  <div class="value">{{ bulletin.moyenne_generale|floatformat:2 }} / 20 — {{ bulletin.mention }}</div>
+</div>
+
+{% if bulletin.observation %}
+<div class="observation">
+  <strong>Observation :</strong> {{ bulletin.observation }}
+</div>
+{% endif %}
+
+<div class="signatures">
+  <div class="signature-cell">
+    Le titulaire
+    <div class="signature-line"></div>
+  </div>
+  <div class="signature-cell">
+    Le directeur des études
+    <div class="signature-line"></div>
+  </div>
+  <div class="signature-cell">
+    Le chef d'établissement
+    <div class="signature-line"></div>
+  </div>
+</div>
+
+<div class="footer-note">
+  Bulletin généré le {% now "d/m/Y" %} à {% now "H:i" %} — {{ etablissement.nom }}
+  {% if bulletin.date_publication %}| Publié le {{ bulletin.date_publication|date:"d/m/Y" }}{% endif %}
+</div>
+
+</body>
+</html>

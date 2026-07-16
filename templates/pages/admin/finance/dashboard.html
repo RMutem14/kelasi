@@ -1,0 +1,112 @@
+{% extends "layouts/dashboard.html" %}
+{% load huduma_tags %}
+{% load static %}
+
+{% block content %}
+
+  <section class="mb-8">
+    <p class="text-sm text-slate-500 max-w-2xl">
+      Vue d'ensemble financière de l'établissement pour
+      {% if annee_active %}{{ annee_active.libelle }}{% else %}l'année en cours{% endif %}.
+    </p>
+  </section>
+
+  {# Cartes statistiques #}
+  <section class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    {% include "components/cards/stats_card.html" with label="Total attendu" value=stats.total_attendu|floatformat:2 icon="wallet" color="indigo" footer="USD" %}
+    {% include "components/cards/stats_card.html" with label="Total encaissé" value=stats.total_paye|floatformat:2 icon="trending-up" color="emerald" footer="USD" %}
+    {% include "components/cards/stats_card.html" with label="Reste à recouvrer" value=stats.total_restant|floatformat:2 icon="alert-circle" color="amber" footer="USD" %}
+    {% include "components/cards/stats_card.html" with label="Taux recouvrement" value=stats.taux_recouvrement|floatformat:0|add:"%" icon="bar-chart-3" color="sky" footer="Pourcentage" %}
+  </section>
+
+  {# Statuts #}
+  <section class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    {% include "components/cards/stats_card.html" with label="En attente" value=stats.nb_en_attente icon="clock" color="amber" footer="Élèves" %}
+    {% include "components/cards/stats_card.html" with label="Partiellement payé" value=stats.nb_partiellement icon="loader" color="sky" footer="Élèves" %}
+    {% include "components/cards/stats_card.html" with label="Payé" value=stats.nb_paye icon="check-circle" color="emerald" footer="Élèves" %}
+    {% include "components/cards/stats_card.html" with label="En retard" value=stats.nb_en_retard icon="alert-triangle" color="red" footer="Élèves" %}
+  </section>
+
+  {# Répartition par catégorie #}
+  {% if par_categorie %}
+  <section class="bg-white border border-slate-200 rounded-[28px] shadow-sm p-6 mb-8">
+    <h2 class="font-bold text-slate-900 text-lg mb-4">Répartition par catégorie</h2>
+    <div class="space-y-4">
+      {% for cat in par_categorie %}
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <span class="text-sm font-semibold text-slate-700">{{ cat.label }}</span>
+            <span class="text-sm text-slate-500">{{ cat.paye|floatformat:2 }} / {{ cat.attendu|floatformat:2 }} $ ({{ cat.taux|floatformat:0 }}%)</span>
+          </div>
+          <div class="h-3 bg-slate-100 rounded-full overflow-hidden">
+            <div class="h-full bg-indigo-600 rounded-full" style="width: {{ cat.taux|floatformat:0 }}%"></div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  {# Paiements récents #}
+  <section class="bg-white border border-slate-200 rounded-[28px] shadow-sm overflow-hidden">
+    <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+      <h2 class="font-bold text-slate-900 text-lg">Paiements récents</h2>
+      <a href="{% url 'finance:paiement_list' %}" class="text-sm font-semibold text-indigo-600 hover:text-indigo-700">
+        Tout voir →
+      </a>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full text-left">
+        <thead class="bg-slate-50">
+          <tr class="text-sm text-slate-500">
+            <th class="px-6 py-4 font-semibold text-left">Élève</th>
+            <th class="px-6 py-4 font-semibold text-left">Frais</th>
+            <th class="px-6 py-4 font-semibold text-center">Montant</th>
+            <th class="px-6 py-4 font-semibold text-left">Méthode</th>
+            <th class="px-6 py-4 font-semibold text-left">Date</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 text-sm">
+          {% for p in paiements_recents %}
+            <tr class="hover:bg-slate-50">
+              <td class="px-6 py-4 font-semibold text-slate-900">{{ p.frais_eleve.eleve.full_name }}</td>
+              <td class="px-6 py-4 text-slate-600">{{ p.frais_eleve.frais_type.libelle }}</td>
+              <td class="px-6 py-4 text-center font-bold text-emerald-600">{{ p.montant|floatformat:2 }} $</td>
+              <td class="px-6 py-4">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 text-slate-600 font-semibold text-xs">
+                  {{ p.get_methode_display }}
+                </span>
+              </td>
+              <td class="px-6 py-4 text-slate-500">{{ p.date_paiement|date:"d/m/Y H:i" }}</td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="5" class="px-6 py-12 text-center text-slate-400">Aucun paiement enregistré.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  {# Liens rapides #}
+  <div class="flex flex-wrap gap-3 mt-6">
+    <a href="{% url 'finance:frais_type_list' %}" class="bg-white border border-slate-200 text-slate-700 px-5 py-3 rounded-2xl font-bold text-sm hover:bg-slate-50 flex items-center gap-2 transition-colors">
+      <i data-lucide="settings" class="w-4 h-4"></i>
+      Types de frais
+    </a>
+    <a href="{% url 'finance:frais_eleve_list' %}" class="bg-white border border-slate-200 text-slate-700 px-5 py-3 rounded-2xl font-bold text-sm hover:bg-slate-50 flex items-center gap-2 transition-colors">
+      <i data-lucide="users" class="w-4 h-4"></i>
+      Frais par élève
+    </a>
+    <a href="{% url 'finance:paiement_list' %}" class="bg-white border border-slate-200 text-slate-700 px-5 py-3 rounded-2xl font-bold text-sm hover:bg-slate-50 flex items-center gap-2 transition-colors">
+      <i data-lucide="receipt" class="w-4 h-4"></i>
+      Historique paiements
+    </a>
+  </div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+  <script>lucide.createIcons();</script>
+{% endblock %}

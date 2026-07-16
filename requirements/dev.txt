@@ -1,4 +1,0 @@
-# requirements/dev.txt - dependances de developpement
--r base.txt
-django-debug-toolbar>=4.4
-ipython>=8.20

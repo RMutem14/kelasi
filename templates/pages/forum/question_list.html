@@ -1,0 +1,84 @@
+{% extends "layouts/dashboard.html" %}
+{% load huduma_tags %}
+{% load static %}
+
+{% block content %}
+
+  <section class="mb-8">
+    <p class="text-sm text-slate-500 max-w-2xl">
+      Posez vos questions sur les cours et obtenez des réponses des enseignants et camarades.
+    </p>
+  </section>
+
+  {# Barre de recherche + filtres #}
+  <section class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
+    <form method="get" action="{% url 'forum:question_list' %}"
+          class="flex items-center gap-3 w-full sm:w-[340px] bg-white border border-slate-200 rounded-2xl px-5 py-3 shadow-sm focus-within:border-indigo-500 focus-within:ring-4 focus-within:ring-indigo-100 transition-all">
+      <i data-lucide="search" class="w-5 h-5 text-slate-400 flex-shrink-0"></i>
+      <input type="text" name="search" value="{{ search_query|default:'' }}"
+             placeholder="Rechercher une question..."
+             class="w-full outline-none text-sm bg-transparent text-slate-700 placeholder:text-slate-400"
+             hx-get="{% url 'forum:question_list' %}"
+             hx-target="#list-container"
+             hx-trigger="keyup changed delay:300ms"
+             hx-include="this">
+    </form>
+
+    <div class="flex flex-wrap items-center gap-3">
+      <select name="statut" hx-get="{% url 'forum:question_list' %}" hx-target="#list-container" hx-trigger="change" hx-include="this"
+              class="bg-white border border-slate-200 rounded-2xl px-4 py-2.5 text-sm font-semibold text-slate-600 focus:border-indigo-500 outline-none">
+        <option value="">Tous statuts</option>
+        {% for value, label in statut_choices %}
+          <option value="{{ value }}" {% if active_statut == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </section>
+
+  {# Bouton poser une question (élève) #}
+  {% if request.user.is_student %}
+  <div class="mb-6">
+    <button onclick="document.getElementById('question-form').classList.toggle('hidden')"
+            class="bg-indigo-600 text-white px-5 py-3 rounded-2xl font-bold text-sm hover:bg-indigo-700 flex items-center gap-2 transition-colors">
+      <i data-lucide="plus" class="w-4 h-4"></i>
+      Poser une question
+    </button>
+
+    <form id="question-form" method="post" action="{% url 'forum:question_create' %}" class="hidden mt-4 bg-white border border-slate-200 rounded-[28px] shadow-sm p-6 space-y-4">
+      {% csrf_token %}
+      <div>
+        <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Titre</label>
+        <input type="text" name="titre" required placeholder="Ex : Comment résoudre une équation du 2nd degré ?"
+               class="w-full bg-white border border-slate-200 rounded-2xl px-4 py-3 text-sm focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 outline-none">
+      </div>
+      <div>
+        <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Cours (optionnel)</label>
+        <select name="cours" class="w-full bg-white border border-slate-200 rounded-2xl px-4 py-3 text-sm focus:border-indigo-500 outline-none">
+          <option value="">— Aucun cours spécifique —</option>
+          {% for c in cours_list %}
+            <option value="{{ c.pk }}">{{ c.nom }} ({{ c.classe.nom }})</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Détail</label>
+        <textarea name="contenu" required rows="4" placeholder="Décrivez votre question en détail..."
+                  class="w-full bg-white border border-slate-200 rounded-2xl px-4 py-3 text-sm focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 outline-none resize-none"></textarea>
+      </div>
+      <button type="submit" class="bg-indigo-600 text-white px-6 py-3 rounded-2xl font-bold text-sm hover:bg-indigo-700 transition-colors">
+        Publier
+      </button>
+    </form>
+  </div>
+  {% endif %}
+
+  {# Liste #}
+  <section id="list-container" class="space-y-4">
+    {% include "pages/forum/_question_list.html" %}
+  </section>
+
+{% endblock %}
+
+{% block extra_scripts %}
+  <script>lucide.createIcons();</script>
+{% endblock %}

@@ -13,7 +13,6 @@ Notifications automatiques implémentées :
 """
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from django.utils import timezone
 
 from apps.accounts.enums import UserRole
 from apps.accounts.models import User

@@ -1,0 +1,45 @@
+{% load huduma_tags %}
+
+<div class="overflow-x-auto">
+  <table class="w-full text-left">
+    <thead class="bg-slate-50">
+      <tr class="text-sm text-slate-500">
+        <th class="px-6 py-4 font-semibold text-left">Réf.</th>
+        <th class="px-6 py-4 font-semibold text-left">Élève</th>
+        <th class="px-6 py-4 font-semibold text-left">Frais</th>
+        <th class="px-6 py-4 font-semibold text-center">Montant</th>
+        <th class="px-6 py-4 font-semibold text-left">Méthode</th>
+        <th class="px-6 py-4 font-semibold text-left">Référence</th>
+        <th class="px-6 py-4 font-semibold text-left">Date</th>
+      </tr>
+    </thead>
+
+    <tbody class="divide-y divide-slate-100 text-sm">
+      {% for p in paiements %}
+        <tr class="hover:bg-slate-50">
+          <td class="px-6 py-4 font-mono text-xs text-slate-500">{{ p.code }}</td>
+          <td class="px-6 py-4 font-bold text-slate-900">{{ p.frais_eleve.eleve.full_name }}</td>
+          <td class="px-6 py-4 text-slate-600">{{ p.frais_eleve.frais_type.libelle }}</td>
+          <td class="px-6 py-4 text-center font-bold text-emerald-600">{{ p.montant|floatformat:2 }} $</td>
+          <td class="px-6 py-4">
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 text-slate-600 font-semibold text-xs">
+              {{ p.get_methode_display }}
+            </span>
+          </td>
+          <td class="px-6 py-4 text-slate-500 text-xs font-mono">{{ p.reference|default:"—" }}</td>
+          <td class="px-6 py-4 text-slate-500">{{ p.date_paiement|date:"d/m/Y H:i" }}</td>
+        </tr>
+      {% empty %}
+        <tr>
+          <td colspan="7" class="px-6 py-12 text-center text-slate-400">
+            Aucun paiement enregistré.
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% if page_obj %}
+  {% include "components/navigation/pagination.html" with hx_target="#list-container" querystring=pagination_querystring %}
+{% endif %}

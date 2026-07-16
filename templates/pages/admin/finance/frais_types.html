@@ -1,0 +1,138 @@
+{% extends "layouts/dashboard.html" %}
+{% load huduma_tags %}
+{% load static %}
+
+{% block content %}
+
+  <section class="mb-8">
+    <p class="text-sm text-slate-500 max-w-2xl">
+      Configurez les types de frais applicables aux élèves pour chaque année scolaire.
+    </p>
+  </section>
+
+  {# Formulaire de création #}
+  <section class="bg-white border border-slate-200 rounded-[28px] shadow-sm p-6 mb-8">
+    <h2 class="font-bold text-slate-900 text-lg mb-4 flex items-center gap-2">
+      <i data-lucide="plus-circle" class="w-5 h-5 text-indigo-600"></i>
+      Créer un type de frais
+    </h2>
+    <form method="post" action="{% url 'finance:frais_type_create' %}" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 items-end">
+      {% csrf_token %}
+      <div>
+        <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Libellé</label>
+        <input type="text" name="libelle" placeholder="Ex : Minerval 1er terme"
+               class="w-full bg-white border border-slate-200 rounded-2xl px-4 py-3 text-sm focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 outline-none">
+      </div>
+      <div>
+        <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Catégorie</label>
+        <select name="categorie" class="w-full bg-white border border-slate-200 rounded-2xl px-4 py-3 text-sm focus:border-indigo-500 outline-none">
+          {% for value, label in categorie_choices %}
+            <option value="{{ value }}">{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Montant (USD)</label>
+        <input type="number" name="montant" step="0.01" placeholder="0.00"
+               class="w-full bg-white border border-slate-200 rounded-2xl px-4 py-3 text-sm focus:border-indigo-500 outline-none">
+      </div>
+      <div>
+        <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Année scolaire</label>
+        <select name="annee_scolaire" class="w-full bg-white border border-slate-200 rounded-2xl px-4 py-3 text-sm focus:border-indigo-500 outline-none">
+          <option value="">— Sélectionner —</option>
+          {% for a in annees %}
+            <option value="{{ a.pk }}">{{ a.libelle }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="flex items-center gap-6 pb-3">
+        <div class="flex items-center gap-2">
+          <input type="checkbox" name="est_obligatoire" id="est_obligatoire" checked
+                 class="w-5 h-5 rounded-lg border-slate-300 text-indigo-600 focus:ring-indigo-500">
+          <label for="est_obligatoire" class="text-sm font-semibold text-slate-600">Obligatoire</label>
+        </div>
+        <div class="flex items-center gap-2">
+          <input type="checkbox" name="est_recurrent" id="est_recurrent"
+                 class="w-5 h-5 rounded-lg border-slate-300 text-indigo-600 focus:ring-indigo-500">
+          <label for="est_recurrent" class="text-sm font-semibold text-slate-600">Récurrent</label>
+        </div>
+      </div>
+      <div>
+        <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Description</label>
+        <input type="text" name="description" placeholder="Optionnel"
+               class="w-full bg-white border border-slate-200 rounded-2xl px-4 py-3 text-sm focus:border-indigo-500 outline-none">
+      </div>
+      <div class="sm:col-span-2 lg:col-span-3">
+        <button type="submit"
+                class="bg-indigo-600 text-white px-6 py-3 rounded-2xl font-bold text-sm hover:bg-indigo-700 flex items-center gap-2 transition-colors">
+          <i data-lucide="plus" class="w-4 h-4"></i>
+          Créer
+        </button>
+      </div>
+    </form>
+  </section>
+
+  {# Liste #}
+  <section class="bg-white border border-slate-200 rounded-[28px] shadow-sm overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-left">
+        <thead class="bg-slate-50">
+          <tr class="text-sm text-slate-500">
+            <th class="px-6 py-4 font-semibold text-left">Libellé</th>
+            <th class="px-6 py-4 font-semibold text-left">Catégorie</th>
+            <th class="px-6 py-4 font-semibold text-center">Montant</th>
+            <th class="px-6 py-4 font-semibold text-left">Année</th>
+            <th class="px-6 py-4 font-semibold text-center">Obligatoire</th>
+            <th class="px-6 py-4 font-semibold text-center">Récurrent</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 text-sm">
+          {% for ft in frais_types %}
+            <tr class="hover:bg-slate-50">
+              <td class="px-6 py-5 font-bold text-slate-900">{{ ft.libelle }}</td>
+              <td class="px-6 py-5">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 text-slate-600 font-semibold text-xs">
+                  {{ ft.get_categorie_display }}
+                </span>
+              </td>
+              <td class="px-6 py-5 text-center font-bold text-slate-900">{{ ft.montant|floatformat:2 }} $</td>
+              <td class="px-6 py-5 text-slate-600">{{ ft.annee_scolaire.libelle }}</td>
+              <td class="px-6 py-5 text-center">
+                {% if ft.est_obligatoire %}
+                  <span class="inline-flex items-center gap-1 text-emerald-600"><i data-lucide="check" class="w-4 h-4"></i></span>
+                {% else %}
+                  <span class="text-slate-300">—</span>
+                {% endif %}
+              </td>
+              <td class="px-6 py-5 text-center">
+                {% if ft.est_recurrent %}
+                  <span class="inline-flex items-center gap-1 text-emerald-600"><i data-lucide="check" class="w-4 h-4"></i></span>
+                {% else %}
+                  <span class="text-slate-300">—</span>
+                {% endif %}
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="6" class="px-6 py-12 text-center text-slate-400">
+                Aucun type de frais configuré. Créez-en un avec le formulaire ci-dessus.
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <div class="flex justify-end mt-6">
+    <a href="{% url 'finance:dashboard' %}" class="text-sm font-semibold text-indigo-600 hover:text-indigo-700 flex items-center gap-1.5">
+      <i data-lucide="arrow-left" class="w-4 h-4"></i>
+      Retour au tableau de bord
+    </a>
+  </div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+  <script>lucide.createIcons();</script>
+{% endblock %}

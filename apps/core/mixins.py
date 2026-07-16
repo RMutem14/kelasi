@@ -10,8 +10,6 @@ de l'utilisateur connecté. À combiner avec ``LoginRequiredMixin``.
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.http import HttpRequest
-from django.template.loader import select_template
-from django.views.generic import View
 
 
 class RoleRequiredMixin(LoginRequiredMixin):

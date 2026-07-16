@@ -3,13 +3,14 @@ Vues du portefeuille numérique enseignant et des demandes de retrait.
 """
 from decimal import Decimal
 from django.contrib import messages
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import redirect, render
 from django.views import View
 from django.views.generic import ListView
 
 from apps.accounts.enums import UserRole
 from apps.core.mixins import RoleRequiredMixin
-from apps.marketplace.models_wallet import Wallet, WalletTransaction, WithdrawalRequest
+from apps.marketplace.models_wallet import Wallet, WithdrawalRequest
+from apps.core.utils import normalize_drc_phone
 
 
 class WalletView(RoleRequiredMixin, View):
@@ -61,8 +62,8 @@ class WithdrawalRequestView(RoleRequiredMixin, View):
 
         montant_str = request.POST.get("montant", "").strip()
         operateur = request.POST.get("operateur", "")
-        choix_numero = request.POST.get("choix_numero", "compte")  # "compte" ou "autre"
-        numero_autre = request.POST.get("numero_autre", "").strip()
+        choix_numero = request.POST.get("choix_numero", "compte")
+        numero_telephone = request.POST.get("numero_telephone", "").strip()
 
         # Validation du montant
         try:
@@ -81,14 +82,14 @@ class WithdrawalRequestView(RoleRequiredMixin, View):
 
         # Déterminer le numéro de téléphone
         if choix_numero == "compte":
-            numero = request.user.phone
+            numero = normalize_drc_phone(request.user.phone)
             if not numero:
                 messages.error(request, "Vous n'avez pas de numéro de téléphone dans votre profil. Choisissez 'Autre numéro'.")
                 return redirect("marketplace:withdrawal_request")
             utilise_compte = True
         else:
-            numero = numero_autre
-            if not numero or len(numero) < 8:
+            numero = normalize_drc_phone(numero_telephone)
+            if not numero or len(numero) < 12:
                 messages.error(request, "Veuillez saisir un numéro de téléphone valide.")
                 return redirect("marketplace:withdrawal_request")
             utilise_compte = False
@@ -96,6 +97,31 @@ class WithdrawalRequestView(RoleRequiredMixin, View):
         if not operateur:
             messages.error(request, "Veuillez choisir un opérateur.")
             return redirect("marketplace:withdrawal_request")
+
+        # Vérification de la correspondance opérateur/numéro
+        # Format attendu après normalisation : +243XXXXXXXXX
+        if len(numero) >= 13:
+            # Après normalisation le 0 initial est retiré : +243812345678
+            # On reconstitue le préfixe local (ex: "081") à partir des 2 chiffres après +243
+            prefix = "0" + numero[4:6]
+            
+            if operateur == WithdrawalRequest.Operateur.ORANGE:
+                valid_prefixes = {"084", "085","089", "080"}
+                if prefix not in valid_prefixes:
+                    messages.error(request, f"Le numéro {numero} n'est pas un numéro Orange Money valide. Préfixes acceptés : {', '.join(valid_prefixes)}")
+                    return redirect("marketplace:withdrawal_request")
+
+            elif operateur == WithdrawalRequest.Operateur.AIRTEL:
+                valid_prefixes = {"097", "098", "099", "090", "096"}
+                if prefix not in valid_prefixes:
+                    messages.error(request, f"Le numéro {numero} n'est pas un numéro Airtel Money valide. Préfixes acceptés : {', '.join(valid_prefixes)}")
+                    return redirect("marketplace:withdrawal_request")
+            
+            elif operateur == WithdrawalRequest.Operateur.VODACOM:
+                valid_prefixes = {"081", "082"}
+                if prefix not in valid_prefixes:
+                    messages.error(request, f"Le numéro {numero} n'est pas un numéro Vodacom M-Pesa valide. Préfixes acceptés : {', '.join(valid_prefixes)}")
+                    return redirect("marketplace:withdrawal_request")
 
         # Créer la demande
         demande = WithdrawalRequest.objects.create(

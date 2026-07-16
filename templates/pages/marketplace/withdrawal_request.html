@@ -129,7 +129,7 @@
         </div>
       </div>
 
-      {# --- Numéro de téléphone (toggle Alpine) --- #}
+      {# Numéro de téléphone #}
       <div>
         <label class="block text-sm font-bold text-slate-900 mb-3">
           Numéro de téléphone <span class="text-rose-500">*</span>
@@ -180,9 +180,8 @@
           </p>
         </div>
 
-        {# Si choix = compte, on transmet quand même le numéro caché #}
+        {# Si choix = compte, afficher un avertissement si aucun numéro sur le compte #}
         <div x-show="choix === 'compte'" x-cloak>
-          <input type="hidden" name="numero_telephone" value="{{ request.user.phone|default:'' }}">
           {% if not request.user.phone %}
             <div class="flex items-start gap-2 p-3 rounded-xl bg-amber-50 border border-amber-200">
               <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5"></i>
@@ -194,7 +193,7 @@
         </div>
       </div>
 
-      {# --- Callout d'avertissement --- #}
+      {# Callout d'avertissement #}
       <div class="flex items-start gap-3 p-4 rounded-2xl bg-amber-50 border border-amber-200">
         <span class="w-8 h-8 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center flex-shrink-0">
           <i data-lucide="alert-triangle" class="w-4 h-4"></i>
@@ -202,12 +201,12 @@
         <div>
           <p class="text-sm font-bold text-amber-900">À noter avant de confirmer</p>
           <p class="text-xs text-amber-800 mt-0.5">
-            ⚠️ Le montant sera débité de votre portefeuille dès la soumission. Vous serez notifié du traitement.
+            Le montant sera débité de votre portefeuille dès la soumission. Vous serez notifié du traitement.
           </p>
         </div>
       </div>
 
-      {# --- Actions --- #}
+      {# Actions #}
       <div class="flex flex-col sm:flex-row gap-3 pt-2">
         <button type="submit"
                 class="flex-1 inline-flex items-center justify-center gap-2 bg-indigo-600 text-white px-6 py-3.5 rounded-2xl font-bold text-sm hover:bg-indigo-700 shadow-indigo-glow transition-colors">

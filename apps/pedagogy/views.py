@@ -5,6 +5,7 @@ Liste, création, édition, suppression de documents pour les enseignants et adm
 Gestion de l'upload de fichiers (PDF, DOCX).
 """
 from django.contrib import messages
+from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views import View
 from django.views.generic import ListView
@@ -21,8 +22,15 @@ class DocumentListView(RoleRequiredMixin, ListView):
     """Liste des documents pédagogiques."""
     model = DocumentPedagogique
     template_name = "pages/admin/documents/index.html"
+    partial_template_name = "pages/admin/documents/_document_list.html"
     context_object_name = "documents"
     allowed_roles = [UserRole.ADMIN, UserRole.ENSEIGNANT, UserRole.DIRECTEUR_ETUDES]
+    paginate_by = 10
+
+    def get_template_names(self):
+        if self.request.headers.get("HX-Request") == "true":
+            return [self.partial_template_name]
+        return super().get_template_names()
 
     def get_queryset(self):
         user = self.request.user
@@ -35,10 +43,15 @@ class DocumentListView(RoleRequiredMixin, ListView):
 
         statut = self.request.GET.get("statut", "")
         type_doc = self.request.GET.get("type", "")
+        search = self.request.GET.get("search", "").strip()
         if statut:
             qs = qs.filter(statut=statut)
         if type_doc:
             qs = qs.filter(type=type_doc)
+        if search:
+            qs = qs.filter(
+                Q(titre__icontains=search) | Q(code__icontains=search)
+            )
         return qs
 
     def get_context_data(self, **kwargs):
@@ -47,6 +60,7 @@ class DocumentListView(RoleRequiredMixin, ListView):
         ctx["page_subtitle"] = "Documents pédagogiques liés aux cours, classes et enseignants."
         ctx["active_statut"] = self.request.GET.get("statut", "")
         ctx["active_type"] = self.request.GET.get("type", "")
+        ctx["search_query"] = self.request.GET.get("search", "")
         ctx["type_choices"] = DocumentPedagogique.Type.choices
         ctx["statut_choices"] = DocumentStatus.choices
         ctx["stats"] = {
@@ -55,6 +69,15 @@ class DocumentListView(RoleRequiredMixin, ListView):
             "en_attente": DocumentPedagogique.objects.filter(statut=DocumentStatus.SOUMIS).count(),
             "brouillons": DocumentPedagogique.objects.filter(statut=DocumentStatus.BROUILLON).count(),
         }
+        # Querystring pour la pagination HTMX
+        qs_params = []
+        if ctx["active_statut"]:
+            qs_params.append(f"statut={ctx['active_statut']}")
+        if ctx["active_type"]:
+            qs_params.append(f"type={ctx['active_type']}")
+        if ctx["search_query"]:
+            qs_params.append(f"search={ctx['search_query']}")
+        ctx["pagination_querystring"] = "&".join(qs_params)
         return ctx
 
 

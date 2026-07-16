@@ -36,6 +36,21 @@ def safe_html(value):
     return value.startswith("<") and ">" in value
 
 
+@register.filter
+def get_item(obj, key):
+    """
+    Récupère une valeur dans un dict par clé.
+    Utilisé pour accéder aux éléments d'un dictionnaire dans les templates.
+
+    Usage : {{ presences_map|get_item:eleve.pk }}
+    """
+    if obj is None:
+        return None
+    if isinstance(obj, dict):
+        return obj.get(key)
+    return getattr(obj, key, None)
+
+
 @register.simple_tag
 def status_color(status_value):
     """

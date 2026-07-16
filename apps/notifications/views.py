@@ -4,7 +4,6 @@ Vues de l'application notifications.
 Liste, marquage des notifications, et envoi de notifications système (admin).
 """
 from django.contrib import messages
-from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from django.views import View
 from django.views.generic import ListView
@@ -44,7 +43,11 @@ class NotificationMarkReadView(RoleRequiredMixin, View):
             notif.lu = True
             notif.save(update_fields=["lu"])
         if request.headers.get("HX-Request") == "true":
-            return JsonResponse({"status": "ok"})
+            non_lues = Notification.objects.filter(destinataire=request.user, lu=False).count()
+            return render(request, "pages/notifications/_notification_item.html", {
+                "notif": notif,
+                "non_lues": non_lues,
+            })
         if notif and notif.url:
             return redirect(notif.url)
         return redirect("notifications:list")
@@ -57,7 +60,11 @@ class NotificationMarkAllReadView(RoleRequiredMixin, View):
     def post(self, request):
         Notification.objects.filter(destinataire=request.user, lu=False).update(lu=True)
         if request.headers.get("HX-Request") == "true":
-            return JsonResponse({"status": "ok"})
+            notifications = Notification.objects.filter(destinataire=request.user).order_by("-created_at")
+            return render(request, "pages/notifications/_notification_list.html", {
+                "notifications": notifications,
+                "non_lues": 0,
+            })
         return redirect("notifications:list")
 
 

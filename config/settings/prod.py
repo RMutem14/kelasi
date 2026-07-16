@@ -21,7 +21,6 @@ ALLOWED_HOSTS = get_env(
 SECURE_SSL_REDIRECT = get_env("SECURE_SSL_REDIRECT", cast=bool, default=True)
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
-SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 SECURE_HSTS_SECONDS = 60 * 60 * 24 * 30  # 30 jours
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True
@@ -63,3 +62,70 @@ EMAIL_BACKEND_PROVIDER = "brevo"
 BREVO_API_KEY = get_env("BREVO_API_KEY", default="")
 BREVO_SENDER_EMAIL = get_env("BREVO_SENDER_EMAIL", default="noreply@elikya.cd")
 BREVO_SENDER_NAME = get_env("BREVO_SENDER_NAME", default="Huduma Kelasi")
+
+# Logging production — fichiers avec rotation + console
+LOG_DIR = BASE_DIR / "logs"  # noqa: F405
+LOG_DIR.mkdir(exist_ok=True)
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "[{asctime}] {levelname} {name} {message}",
+            "style": "{",
+        },
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "verbose",
+        },
+        "django_file": {
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": str(LOG_DIR / "django.log"),
+            "maxBytes": 10 * 1024 * 1024,  # 10 MB
+            "backupCount": 5,
+            "formatter": "verbose",
+        },
+        "app_file": {
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": str(LOG_DIR / "huduma.log"),
+            "maxBytes": 10 * 1024 * 1024,
+            "backupCount": 5,
+            "formatter": "verbose",
+        },
+        "error_file": {
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": str(LOG_DIR / "errors.log"),
+            "maxBytes": 10 * 1024 * 1024,
+            "backupCount": 10,
+            "formatter": "verbose",
+            "level": "ERROR",
+        },
+        "mail_admins": {
+            "class": "django.utils.log.AdminEmailHandler",
+            "level": "ERROR",
+        },
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["console", "django_file"],
+            "level": "INFO",
+        },
+        "django.request": {
+            "handlers": ["error_file", "mail_admins"],
+            "level": "ERROR",
+            "propagate": False,
+        },
+        "apps": {
+            "handlers": ["console", "app_file"],
+            "level": "INFO",
+        },
+    },
+}
+
+# Admins pour les alertes email d'erreurs 500
+ADMINS = [
+    ("Admin Huduma", get_env("ADMIN_EMAIL", default="admin@huduma.cd")),
+]
+SERVER_EMAIL = DEFAULT_FROM_EMAIL

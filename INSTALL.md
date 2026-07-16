@@ -27,33 +27,27 @@ unzip huduma.zip
 cd huduma
 ```
 
-### 2. Créer un environnement virtuel (recommandé)
+### 2. Installer les dépendances
 
 ```bash
-# Linux / macOS
-python3 -m venv .venv
-source .venv/bin/activate
-
-# Windows (PowerShell)
-python -m venv .venv
-.venv\Scripts\Activate.ps1
+uv sync
 ```
 
-### 3. Installer les dépendances
+> Cela installe Django 5.1, python-dotenv, psycopg2-binaryn pillow et django-debug-toolbar.
+
+### 4. Appliquer les migrations
 
 ```bash
-pip install -r requirements/dev.txt
+uv run manage.py migrate
 ```
 
-> Cela installe Django 5.1, python-dotenv, psycopg2-binary et django-debug-toolbar.
-
-### 4. Lancer le serveur
+### 5. Lancer le serveur
 
 ```bash
-python manage.py runserver
+uv run manage.py runserver
 ```
 
-**C'est prêt !** Ouvrez http://127.0.0.1:8000/ dans votre navigateur.
+**C'est prêt !** Ouvrez http://127.0.0.1:8000/ dans le navigateur.
 
 ---
 
@@ -189,5 +183,5 @@ Pour toute question ou problème :
 
 ---
 
-**Huduma|Kelasi — Sprint 0 — Collège Saint Joseph/Elikya**
-*Préparé par Z.ai — Juillet 2026*
+**Huduma|Kelasi — Collège Saint Joseph/Elikya**
+*Préparé par Luis — Juillet 2026*

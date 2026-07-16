@@ -1,0 +1,115 @@
+{% extends "layouts/dashboard.html" %}
+{% load huduma_tags %}
+{% load static %}
+
+{% block content %}
+
+  {# En-tête #}
+  <section class="mb-8">
+    <p class="text-sm text-slate-500 max-w-2xl">
+      Générez les bulletins de notes par classe et par période.
+      Vérifiez les moyennes, publiez les bulletins pour les élèves.
+    </p>
+  </section>
+
+  {# Cartes statistiques #}
+  <section class="grid sm:grid-cols-4 gap-6 mb-8">
+    {% include "components/cards/stats_card.html" with label="Total bulletins" value=paginator.count icon="file-text" color="indigo" footer="Tous statuts" %}
+    {% include "components/cards/stats_card.html" with label="Brouillons" value=stats_brouillons icon="file-edit" color="amber" footer="À publier" %}
+    {% include "components/cards/stats_card.html" with label="Publiés" value=stats_publies icon="check-circle" color="emerald" footer="Accessibles élèves" %}
+    {% include "components/cards/stats_card.html" with label="Périodes" value=periodes|length icon="calendar" color="sky" footer="Périodes configurées" %}
+  </section>
+
+  {# Génération de bulletins #}
+  <section class="bg-white border border-slate-200 rounded-[28px] shadow-sm p-6 mb-8">
+    <h2 class="font-bold text-slate-900 text-lg mb-4 flex items-center gap-2">
+      <i data-lucide="sparkles" class="w-5 h-5 text-indigo-600"></i>
+      Générer les bulletins d'une classe
+    </h2>
+    <form method="post" action="{% url 'students:bulletin_generate' %}" class="flex flex-col sm:flex-row gap-4 items-end">
+      {% csrf_token %}
+      <div class="flex-1 w-full">
+        <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Classe</label>
+        <select name="classe" class="w-full bg-white border border-slate-200 rounded-2xl px-4 py-3 text-sm focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 outline-none">
+          <option value="">— Sélectionner —</option>
+          {% for c in classes %}
+            <option value="{{ c.pk }}">{{ c.nom }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="flex-1 w-full">
+        <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Période</label>
+        <select name="periode" class="w-full bg-white border border-slate-200 rounded-2xl px-4 py-3 text-sm focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 outline-none">
+          <option value="">— Sélectionner —</option>
+          {% for p in periodes %}
+            <option value="{{ p.pk }}">{{ p.libelle }} ({{ p.annee_scolaire.libelle }})</option>
+          {% endfor %}
+        </select>
+      </div>
+      <button type="submit"
+              class="bg-indigo-600 text-white px-6 py-3 rounded-2xl font-bold text-sm hover:bg-indigo-700 flex items-center gap-2 transition-colors whitespace-nowrap">
+        <i data-lucide="zap" class="w-4 h-4"></i>
+        Générer
+      </button>
+    </form>
+  </section>
+
+  {# Recherche + filtres #}
+  <section class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
+    <form method="get" action="{% url 'students:bulletin_list' %}"
+          class="flex items-center gap-3 w-full sm:w-[340px] bg-white border border-slate-200 rounded-2xl px-5 py-3 shadow-sm focus-within:border-indigo-500 focus-within:ring-4 focus-within:ring-indigo-100 transition-all">
+      <i data-lucide="search" class="w-5 h-5 text-slate-400 flex-shrink-0"></i>
+      <input type="text" name="search" value="{{ search_query|default:'' }}"
+             placeholder="Rechercher un élève..."
+             class="w-full outline-none text-sm bg-transparent text-slate-700 placeholder:text-slate-400"
+             hx-get="{% url 'students:bulletin_list' %}"
+             hx-target="#list-container"
+             hx-trigger="keyup changed delay:300ms"
+             hx-include="this">
+    </form>
+
+    <div class="flex flex-wrap items-center gap-3">
+      <select name="classe" hx-get="{% url 'students:bulletin_list' %}" hx-target="#list-container" hx-trigger="change" hx-include="this"
+              class="bg-white border border-slate-200 rounded-2xl px-4 py-2.5 text-sm font-semibold text-slate-600 focus:border-indigo-500 outline-none">
+        <option value="">Toutes classes</option>
+        {% for c in classes %}
+          <option value="{{ c.pk }}" {% if active_classe == c.pk|stringformat:"s" %}selected{% endif %}>{{ c.nom }}</option>
+        {% endfor %}
+      </select>
+
+      <select name="periode" hx-get="{% url 'students:bulletin_list' %}" hx-target="#list-container" hx-trigger="change" hx-include="this"
+              class="bg-white border border-slate-200 rounded-2xl px-4 py-2.5 text-sm font-semibold text-slate-600 focus:border-indigo-500 outline-none">
+        <option value="">Toutes périodes</option>
+        {% for p in periodes %}
+          <option value="{{ p.pk }}" {% if active_periode == p.pk|stringformat:"s" %}selected{% endif %}>{{ p.libelle }} ({{ p.annee_scolaire.libelle }})</option>
+        {% endfor %}
+      </select>
+
+      <select name="statut" hx-get="{% url 'students:bulletin_list' %}" hx-target="#list-container" hx-trigger="change" hx-include="this"
+              class="bg-white border border-slate-200 rounded-2xl px-4 py-2.5 text-sm font-semibold text-slate-600 focus:border-indigo-500 outline-none">
+        <option value="">Tous statuts</option>
+        <option value="brouillon" {% if active_statut == "brouillon" %}selected{% endif %}>Brouillon</option>
+        <option value="publie" {% if active_statut == "publie" %}selected{% endif %}>Publié</option>
+      </select>
+    </div>
+  </section>
+
+  {# Tableau #}
+  <section id="list-container" class="bg-white border border-slate-200 rounded-[28px] shadow-sm overflow-hidden mb-6">
+    {% include "pages/admin/bulletins/_bulletin_list.html" %}
+  </section>
+
+  {# Lien vers gestion des périodes #}
+  <div class="flex justify-end">
+    <a href="{% url 'students:periode_list' %}"
+       class="text-sm font-semibold text-indigo-600 hover:text-indigo-700 flex items-center gap-1.5">
+      <i data-lucide="calendar" class="w-4 h-4"></i>
+      Gérer les périodes
+    </a>
+  </div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+  <script>lucide.createIcons();</script>
+{% endblock %}

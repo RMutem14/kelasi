@@ -1,0 +1,54 @@
+{% extends "layouts/dashboard.html" %}
+{% load huduma_tags %}
+{% load static %}
+
+{% block content %}
+
+  <section class="mb-8">
+    <p class="text-sm text-slate-500 max-w-2xl">
+      Historique complet des paiements enregistrés. Total encaissé : <strong>{{ total_paiements|floatformat:2 }} $</strong>.
+    </p>
+  </section>
+
+  {# Recherche + filtre #}
+  <section class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
+    <form method="get" action="{% url 'finance:paiement_list' %}"
+          class="flex items-center gap-3 w-full sm:w-[340px] bg-white border border-slate-200 rounded-2xl px-5 py-3 shadow-sm focus-within:border-indigo-500 focus-within:ring-4 focus-within:ring-indigo-100 transition-all">
+      <i data-lucide="search" class="w-5 h-5 text-slate-400 flex-shrink-0"></i>
+      <input type="text" name="search" value="{{ search_query|default:'' }}"
+             placeholder="Rechercher (élève, référence)..."
+             class="w-full outline-none text-sm bg-transparent text-slate-700 placeholder:text-slate-400"
+             hx-get="{% url 'finance:paiement_list' %}"
+             hx-target="#list-container"
+             hx-trigger="keyup changed delay:300ms"
+             hx-include="this">
+    </form>
+
+    <div class="flex items-center gap-3">
+      <select name="methode" hx-get="{% url 'finance:paiement_list' %}" hx-target="#list-container" hx-trigger="change" hx-include="this"
+              class="bg-white border border-slate-200 rounded-2xl px-4 py-2.5 text-sm font-semibold text-slate-600 focus:border-indigo-500 outline-none">
+        <option value="">Toutes méthodes</option>
+        {% for value, label in methode_choices %}
+          <option value="{{ value }}" {% if active_methode == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </section>
+
+  {# Tableau #}
+  <section id="list-container" class="bg-white border border-slate-200 rounded-[28px] shadow-sm overflow-hidden mb-6">
+    {% include "pages/admin/finance/_paiement_list.html" %}
+  </section>
+
+  <div class="flex justify-end">
+    <a href="{% url 'finance:dashboard' %}" class="text-sm font-semibold text-indigo-600 hover:text-indigo-700 flex items-center gap-1.5">
+      <i data-lucide="arrow-left" class="w-4 h-4"></i>
+      Retour au tableau de bord
+    </a>
+  </div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+  <script>lucide.createIcons();</script>
+{% endblock %}

@@ -1,0 +1,63 @@
+{% load huduma_tags %}
+{% load static %}
+
+<td class="px-6 py-5">
+  <div class="flex items-center gap-3">
+    <span class="w-10 h-10 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-extrabold flex-shrink-0">
+      {{ eleve.initials }}
+    </span>
+    <div>
+      <p class="font-bold text-slate-900">{{ eleve.full_name }}</p>
+    </div>
+  </div>
+</td>
+
+{% with current_statut=presence.statut|default:'' %}
+<td class="px-6 py-5 text-center">
+  <button hx-post="{% url 'attendance:save' %}"
+          hx-vals='{"eleve": "{{ eleve.pk }}", "cours": "{{ request.GET.cours }}", "date": "{{ request.GET.date }}", "statut": "present"}'
+          hx-target="#row-{{ eleve.pk }}"
+          hx-swap="outerHTML"
+          class="w-10 h-10 rounded-xl flex items-center justify-center transition-colors
+            {% if current_statut == 'present' %}bg-emerald-500 text-white{% else %}bg-slate-100 text-slate-400 hover:bg-emerald-100 hover:text-emerald-600{% endif %}"
+          title="Présent">
+    <i data-lucide="check" class="w-5 h-5"></i>
+  </button>
+</td>
+
+<td class="px-6 py-5 text-center">
+  <button hx-post="{% url 'attendance:save' %}"
+          hx-vals='{"eleve": "{{ eleve.pk }}", "cours": "{{ request.GET.cours }}", "date": "{{ request.GET.date }}", "statut": "absent"}'
+          hx-target="#row-{{ eleve.pk }}"
+          hx-swap="outerHTML"
+          class="w-10 h-10 rounded-xl flex items-center justify-center transition-colors
+            {% if current_statut == 'absent' %}bg-red-500 text-white{% else %}bg-slate-100 text-slate-400 hover:bg-red-100 hover:text-red-600{% endif %}"
+          title="Absent">
+    <i data-lucide="x" class="w-5 h-5"></i>
+  </button>
+</td>
+
+<td class="px-6 py-5 text-center">
+  <button hx-post="{% url 'attendance:save' %}"
+          hx-vals='{"eleve": "{{ eleve.pk }}", "cours": "{{ request.GET.cours }}", "date": "{{ request.GET.date }}", "statut": "absent_justifie"}'
+          hx-target="#row-{{ eleve.pk }}"
+          hx-swap="outerHTML"
+          class="w-10 h-10 rounded-xl flex items-center justify-center transition-colors
+            {% if current_statut == 'absent_justifie' %}bg-amber-500 text-white{% else %}bg-slate-100 text-slate-400 hover:bg-amber-100 hover:text-amber-600{% endif %}"
+          title="Absent justifié">
+    <i data-lucide="file-warning" class="w-5 h-5"></i>
+  </button>
+</td>
+
+<td class="px-6 py-5 text-center">
+  <button hx-post="{% url 'attendance:save' %}"
+          hx-vals='{"eleve": "{{ eleve.pk }}", "cours": "{{ request.GET.cours }}", "date": "{{ request.GET.date }}", "statut": "retard", "minutes_retard": "15"}'
+          hx-target="#row-{{ eleve.pk }}"
+          hx-swap="outerHTML"
+          class="w-10 h-10 rounded-xl flex items-center justify-center transition-colors
+            {% if current_statut == 'retard' %}bg-sky-500 text-white{% else %}bg-slate-100 text-slate-400 hover:bg-sky-100 hover:text-sky-600{% endif %}"
+          title="Retard">
+    <i data-lucide="clock" class="w-5 h-5"></i>
+  </button>
+</td>
+{% endwith %}

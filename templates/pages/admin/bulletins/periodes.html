@@ -1,0 +1,151 @@
+{% extends "layouts/dashboard.html" %}
+{% load huduma_tags %}
+{% load static %}
+
+{% block content %}
+
+  <section class="mb-8">
+    <p class="text-sm text-slate-500 max-w-2xl">
+      Les périodes d'évaluation (termes) permettent de regrouper les notes
+      et de générer les bulletins. Chaque période est liée à une année scolaire.
+    </p>
+  </section>
+
+  {# Formulaire de création #}
+  <section class="bg-white border border-slate-200 rounded-[28px] shadow-sm p-6 mb-8">
+    <h2 class="font-bold text-slate-900 text-lg mb-4 flex items-center gap-2">
+      <i data-lucide="plus-circle" class="w-5 h-5 text-indigo-600"></i>
+      Créer une période
+    </h2>
+    <form method="post" action="{% url 'students:periode_create' %}" class="grid sm:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
+      {% csrf_token %}
+      <div>
+        <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Libellé</label>
+        <input type="text" name="libelle" placeholder="Ex : 1er terme"
+               class="w-full bg-white border border-slate-200 rounded-2xl px-4 py-3 text-sm focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 outline-none">
+      </div>
+      <div>
+        <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Ordre</label>
+        <select name="ordre" class="w-full bg-white border border-slate-200 rounded-2xl px-4 py-3 text-sm focus:border-indigo-500 outline-none">
+          <option value="1">1er terme</option>
+          <option value="2">2e terme</option>
+          <option value="3">3e terme / Examen</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Année scolaire</label>
+        <select name="annee_scolaire" class="w-full bg-white border border-slate-200 rounded-2xl px-4 py-3 text-sm focus:border-indigo-500 outline-none">
+          <option value="">— Sélectionner —</option>
+          {% for a in annees %}
+            <option value="{{ a.pk }}">{{ a.libelle }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Début</label>
+        <input type="date" name="date_debut"
+               class="w-full bg-white border border-slate-200 rounded-2xl px-4 py-3 text-sm focus:border-indigo-500 outline-none">
+      </div>
+      <div>
+        <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Fin</label>
+        <input type="date" name="date_fin"
+               class="w-full bg-white border border-slate-200 rounded-2xl px-4 py-3 text-sm focus:border-indigo-500 outline-none">
+      </div>
+      <div class="sm:col-span-2 lg:col-span-5">
+        <button type="submit"
+                class="bg-indigo-600 text-white px-6 py-3 rounded-2xl font-bold text-sm hover:bg-indigo-700 flex items-center gap-2 transition-colors">
+          <i data-lucide="plus" class="w-4 h-4"></i>
+          Créer la période
+        </button>
+      </div>
+    </form>
+  </section>
+
+  {# Liste des périodes #}
+  <section class="bg-white border border-slate-200 rounded-[28px] shadow-sm overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-left">
+        <thead class="bg-slate-50">
+          <tr class="text-sm text-slate-500">
+            <th class="px-6 py-4 font-semibold text-left">Période</th>
+            <th class="px-6 py-4 font-semibold text-left">Année scolaire</th>
+            <th class="px-6 py-4 font-semibold text-left">Dates</th>
+            <th class="px-6 py-4 font-semibold text-center">Statut</th>
+            <th class="px-6 py-4 font-semibold text-center">Bulletins</th>
+          </tr>
+        </thead>
+
+        <tbody class="divide-y divide-slate-100 text-sm">
+          {% for periode in periodes %}
+            <tr class="hover:bg-slate-50">
+              <td class="px-6 py-5">
+                <div class="flex items-center gap-3">
+                  <span class="w-10 h-10 rounded-xl bg-indigo-100 text-indigo-700 flex items-center justify-center font-extrabold text-sm flex-shrink-0">
+                    {{ periode.ordre }}
+                  </span>
+                  <div>
+                    <p class="font-bold text-slate-900">{{ periode.libelle }}</p>
+                    <p class="text-slate-500 text-xs">Ordre {{ periode.ordre }}</p>
+                  </div>
+                </div>
+              </td>
+
+              <td class="px-6 py-5 text-slate-600 font-medium">
+                {{ periode.annee_scolaire.libelle }}
+              </td>
+
+              <td class="px-6 py-5 text-slate-500 text-sm">
+                {{ periode.date_debut|date:"d/m/Y" }} → {{ periode.date_fin|date:"d/m/Y" }}
+              </td>
+
+              <td class="px-6 py-5 text-center">
+                {% if periode.est_active %}
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-600 font-semibold text-xs">
+                    <i data-lucide="check-circle" class="w-3 h-3"></i>
+                    Active
+                  </span>
+                {% else %}
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 text-slate-500 font-semibold text-xs">
+                    Inactive
+                  </span>
+                {% endif %}
+              </td>
+
+              <td class="px-6 py-5 text-center">
+                <span class="font-bold text-slate-900">{{ periode.bulletins.count }}</span>
+                <span class="text-slate-400 text-xs">bulletin(s)</span>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="5" class="px-6 py-12">
+                <div class="flex flex-col items-center justify-center text-center py-8 px-6">
+                  <div class="w-20 h-20 rounded-3xl bg-slate-50 border border-slate-100 flex items-center justify-center mb-5">
+                    <i data-lucide="calendar" class="w-9 h-9 text-slate-400"></i>
+                  </div>
+                  <h3 class="text-lg font-bold text-slate-900 mb-1.5">Aucune période configurée</h3>
+                  <p class="text-sm text-slate-500 max-w-md">
+                    Créez votre première période d'évaluation avec le formulaire ci-dessus.
+                  </p>
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <div class="flex justify-end mt-6">
+    <a href="{% url 'students:bulletin_list' %}"
+       class="text-sm font-semibold text-indigo-600 hover:text-indigo-700 flex items-center gap-1.5">
+      <i data-lucide="arrow-left" class="w-4 h-4"></i>
+      Retour aux bulletins
+    </a>
+  </div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+  <script>lucide.createIcons();</script>
+{% endblock %}

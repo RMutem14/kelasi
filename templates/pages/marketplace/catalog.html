@@ -14,7 +14,7 @@
     </p>
 
     <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-      {# Recherche #}
+      {# Recherche HTMX #}
       <form method="get" action="{% url 'marketplace:catalog' %}"
             class="flex items-center gap-3 w-full sm:w-[340px] bg-white border border-slate-200 rounded-2xl px-5 py-3 shadow-sm focus-within:border-indigo-500 focus-within:ring-4 focus-within:ring-indigo-100 transition-all">
         <i data-lucide="search" class="w-5 h-5 text-slate-400 flex-shrink-0"></i>
@@ -24,6 +24,10 @@
           value="{{ search_query }}"
           placeholder="Rechercher une ressource..."
           class="w-full outline-none text-sm bg-transparent text-slate-700 placeholder:text-slate-400"
+          hx-get="{% url 'marketplace:catalog' %}"
+          hx-target="#list-container"
+          hx-trigger="keyup changed delay:300ms"
+          hx-include="this"
         >
         {% if active_type %}
           <input type="hidden" name="type" value="{{ active_type }}">
@@ -41,15 +45,19 @@
   </section>
 
   {# ============================================================ #}
-  {# Filtres par type #}
+  {# Filtres par type (HTMX) #}
   {# ============================================================ #}
   <section class="flex flex-wrap items-center gap-3 mb-6">
     <a href="{% url 'marketplace:catalog' %}{% if search_query %}?search={{ search_query }}{% endif %}"
+       hx-get="{% url 'marketplace:catalog' %}{% if search_query %}?search={{ search_query }}{% endif %}"
+       hx-target="#list-container"
        class="px-5 py-2.5 rounded-2xl font-bold text-sm transition-colors {% if not active_type %}bg-indigo-600 text-white shadow-indigo-glow{% else %}bg-white border border-slate-200 text-slate-600 hover:bg-slate-50{% endif %}">
       Tous
     </a>
     {% for value, label in type_choices %}
       <a href="?type={{ value }}{% if search_query %}&search={{ search_query }}{% endif %}"
+         hx-get="?type={{ value }}{% if search_query %}&search={{ search_query }}{% endif %}"
+         hx-target="#list-container"
          class="px-5 py-2.5 rounded-2xl font-bold text-sm transition-colors {% if active_type == value %}bg-indigo-600 text-white shadow-indigo-glow{% else %}bg-white border border-slate-200 text-slate-600 hover:bg-slate-50{% endif %}">
         {{ label }}
       </a>
@@ -57,174 +65,11 @@
   </section>
 
   {# ============================================================ #}
-  {# Grille de ressources #}
+  {# Grille de ressources (HTMX — contenu swappé dans #list-container) #}
   {# ============================================================ #}
-  <section>
-    {% if ressources %}
-      <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
-        {% for ressource in ressources %}
-          <article class="group bg-white rounded-[28px] border border-slate-200 shadow-sm overflow-hidden flex flex-col hover:shadow-md transition-shadow">
-
-            {# En-tête : icône type + badge gratuit #}
-            <div class="p-6 pb-0">
-              <div class="flex items-start justify-between">
-                <div class="w-14 h-14 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
-                  {% if ressource.type == 'syllabus' %}
-                    <i data-lucide="book-open" class="w-7 h-7"></i>
-                  {% elif ressource.type == 'support' %}
-                    <i data-lucide="file-text" class="w-7 h-7"></i>
-                  {% elif ressource.type == 'exercice' %}
-                    <i data-lucide="clipboard-list" class="w-7 h-7"></i>
-                  {% elif ressource.type == 'tp' %}
-                    <i data-lucide="flask-conical" class="w-7 h-7"></i>
-                  {% elif ressource.type == 'examen' %}
-                    <i data-lucide="file-check" class="w-7 h-7"></i>
-                  {% elif ressource.type == 'livre' %}
-                    <i data-lucide="book" class="w-7 h-7"></i>
-                  {% elif ressource.type == 'corrige' %}
-                    <i data-lucide="check-square" class="w-7 h-7"></i>
-                  {% else %}
-                    <i data-lucide="file" class="w-7 h-7"></i>
-                  {% endif %}
-                </div>
-
-                {% if ressource.est_gratuit %}
-                  <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 font-semibold text-xs">
-                    <i data-lucide="gift" class="w-3 h-3"></i>
-                    Gratuit
-                  </span>
-                {% endif %}
-              </div>
-
-              {# Type + classe #}
-              <div class="flex items-center gap-2 mt-4">
-                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-sky-50 text-sky-700 font-semibold text-xs">
-                  {{ ressource.get_type_display }}
-                </span>
-                {% if ressource.classe %}
-                  <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-semibold text-xs">
-                    <i data-lucide="school" class="w-3 h-3"></i>
-                    {{ ressource.classe.nom }}
-                  </span>
-                {% endif %}
-              </div>
-            </div>
-
-            {# Corps : titre + auteur #}
-            <div class="p-6 flex-1 flex flex-col">
-              <h3 class="text-lg font-extrabold text-slate-900 leading-snug line-clamp-2">
-                {{ ressource.titre }}
-              </h3>
-              <p class="mt-2 text-sm text-slate-500 line-clamp-2 flex-1">
-                {{ ressource.description|default:"Aucune description fournie." }}
-              </p>
-
-              {# Auteur #}
-              <div class="mt-5 flex items-center gap-2">
-                <span class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-xs flex-shrink-0">
-                  {{ ressource.auteur.initials }}
-                </span>
-                <div class="min-w-0">
-                  <p class="text-sm font-semibold text-slate-700 truncate">{{ ressource.auteur.full_name }}</p>
-                  <p class="text-xs text-slate-400">Enseignant</p>
-                </div>
-              </div>
-            </div>
-
-            {# Pied : prix + bouton #}
-            <div class="px-6 pb-6 pt-4 border-t border-slate-100 flex items-center justify-between gap-3">
-              <div>
-                {% if ressource.est_gratuit %}
-                  <p class="text-2xl font-extrabold text-emerald-600">Gratuit</p>
-                {% else %}
-                  <p class="text-2xl font-extrabold text-indigo-600">{{ ressource.prix|floatformat:2 }} <span class="text-sm font-bold">$</span></p>
-                {% endif %}
-              </div>
-              <a href="{% url 'marketplace:detail' ressource.pk %}"
-                 class="bg-indigo-600 text-white px-4 py-2.5 rounded-2xl font-bold text-sm hover:bg-indigo-700 shadow-indigo-glow flex items-center gap-2 transition-colors">
-                Voir détails
-                <i data-lucide="arrow-right" class="w-4 h-4"></i>
-              </a>
-            </div>
-          </article>
-        {% endfor %}
-      </div>
-    {% else %}
-      <div class="bg-white border border-slate-200 rounded-[28px] shadow-sm">
-        <div class="flex flex-col items-center justify-center text-center py-16 px-6">
-          <div class="w-20 h-20 rounded-3xl bg-slate-50 border border-slate-100 flex items-center justify-center mb-5">
-            <i data-lucide="package-open" class="w-9 h-9 text-slate-400"></i>
-          </div>
-          <h3 class="text-lg font-bold text-slate-900 mb-1.5">Aucune ressource trouvée</h3>
-          <p class="text-sm text-slate-500 max-w-md">
-            Aucune ressource ne correspond à vos critères de recherche.
-            Essayez de modifier les filtres ou la requête.
-          </p>
-          <a href="{% url 'marketplace:catalog' %}"
-             class="mt-6 bg-indigo-600 text-white px-6 py-3 rounded-2xl font-bold text-sm hover:bg-indigo-700 shadow-indigo-glow flex items-center gap-2 transition-colors">
-            <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
-            Réinitialiser les filtres
-          </a>
-        </div>
-      </div>
-    {% endif %}
+  <section id="list-container">
+    {% include "pages/marketplace/_catalog_grid.html" %}
   </section>
-
-  {# ============================================================ #}
-  {# Pagination #}
-  {# ============================================================ #}
-  {% if page_obj %}
-    {% if page_obj.has_other_pages %}
-      <nav class="mt-8 bg-white border border-slate-200 rounded-[28px] shadow-sm flex items-center justify-between px-6 py-4" aria-label="Pagination">
-        <div class="text-sm text-slate-500">
-          Page {{ page_obj.number }} sur {{ page_obj.paginator.num_pages }}
-          <span class="hidden sm:inline">· {{ page_obj.paginator.count }} ressource(s)</span>
-        </div>
-
-        <div class="flex items-center gap-2">
-          {# Précédent #}
-          {% if page_obj.has_previous %}
-            <a href="?page={{ page_obj.previous_page_number }}{% if active_type %}&type={{ active_type }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}"
-               class="w-9 h-9 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 flex items-center justify-center text-slate-600">
-              <i data-lucide="chevron-left" class="w-4 h-4"></i>
-            </a>
-          {% else %}
-            <span class="w-9 h-9 rounded-xl border border-slate-100 bg-slate-50 flex items-center justify-center text-slate-300 cursor-not-allowed">
-              <i data-lucide="chevron-left" class="w-4 h-4"></i>
-            </span>
-          {% endif %}
-
-          {# Numéros de page #}
-          {% for num in page_obj.paginator.page_range %}
-            {% if num == page_obj.number %}
-              <span class="w-9 h-9 rounded-xl bg-indigo-600 text-white font-semibold flex items-center justify-center text-sm">
-                {{ num }}
-              </span>
-            {% elif num > page_obj.number|add:'-2' and num < page_obj.number|add:'2' %}
-              <a href="?page={{ num }}{% if active_type %}&type={{ active_type }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}"
-                 class="w-9 h-9 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 flex items-center justify-center text-sm text-slate-600">
-                {{ num }}
-              </a>
-            {% elif num == 1 or num == page_obj.paginator.num_pages %}
-              <span class="px-2 text-slate-400">…</span>
-            {% endif %}
-          {% endfor %}
-
-          {# Suivant #}
-          {% if page_obj.has_next %}
-            <a href="?page={{ page_obj.next_page_number }}{% if active_type %}&type={{ active_type }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}"
-               class="w-9 h-9 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 flex items-center justify-center text-slate-600">
-              <i data-lucide="chevron-right" class="w-4 h-4"></i>
-            </a>
-          {% else %}
-            <span class="w-9 h-9 rounded-xl border border-slate-100 bg-slate-50 flex items-center justify-center text-slate-300 cursor-not-allowed">
-              <i data-lucide="chevron-right" class="w-4 h-4"></i>
-            </span>
-          {% endif %}
-        </div>
-      </nav>
-    {% endif %}
-  {% endif %}
 
 {% endblock %}
 

@@ -97,3 +97,28 @@ def user_initials(user):
     if email:
         return email[0].upper()
     return "?"
+
+def normalize_drc_phone(phone_number: str) -> str:
+    """Normalise un numéro de téléphone DRC au format +243XXXXXXXXX.
+
+    Retourne une chaîne vide si le numéro est invalide.
+    """
+    if not phone_number:
+        return ""
+
+    # Ne garder que les chiffres (espaces, tirets, '+' supprimés)
+    phone = ''.join(c for c in str(phone_number) if c.isdigit())
+
+    # Supprimer le préfixe 243 s'il existe (ex: +243812345678 ou 243812345678)
+    if phone.startswith('243') and len(phone) > 10:
+        phone = phone[3:]
+
+    # Supprimer le zéro initial si présent
+    if phone.startswith('0'):
+        phone = phone[1:]
+
+    if len(phone) != 9 or not phone.isdigit():
+        return ""
+
+    # Ajouter le préfixe +243
+    return f"+243{phone}"

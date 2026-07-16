@@ -1,0 +1,75 @@
+{% extends "layouts/dashboard.html" %}
+{% load huduma_tags %}
+{% load static %}
+
+{% block content %}
+
+  <section class="mb-8">
+    <div class="flex items-center gap-3 mb-4">
+      <a href="{% url 'parents:dashboard' %}" class="text-sm text-slate-500 hover:text-indigo-600 flex items-center gap-1">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+        Retour
+      </a>
+    </div>
+    <p class="text-sm text-slate-500 max-w-2xl">
+      Présences de {{ eleve.full_name }}.
+    </p>
+  </section>
+
+  {# Stats #}
+  <section class="grid sm:grid-cols-3 gap-6 mb-8">
+    {% include "components/cards/stats_card.html" with label="Total" value=stats.total icon="calendar" color="indigo" footer="Enregistrements" %}
+    {% include "components/cards/stats_card.html" with label="Absences" value=stats.absents icon="x" color="red" footer="Non justifiées" %}
+    {% include "components/cards/stats_card.html" with label="Retards" value=stats.retards icon="clock" color="sky" footer="Retards" %}
+  </section>
+
+  {# Liste #}
+  <section class="bg-white border border-slate-200 rounded-[28px] shadow-sm overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-left">
+        <thead class="bg-slate-50">
+          <tr class="text-sm text-slate-500">
+            <th class="px-6 py-4 font-semibold text-left">Cours</th>
+            <th class="px-6 py-4 font-semibold text-left">Date</th>
+            <th class="px-6 py-4 font-semibold text-center">Statut</th>
+            <th class="px-6 py-4 font-semibold text-left">Justification</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 text-sm">
+          {% for p in presences %}
+            <tr class="hover:bg-slate-50">
+              <td class="px-6 py-5 font-semibold text-slate-700">{{ p.cours.nom }}</td>
+              <td class="px-6 py-5 text-slate-500">{{ p.date|date:"d/m/Y" }}</td>
+              <td class="px-6 py-5 text-center">
+                {% if p.statut == 'present' %}
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-600 font-semibold text-xs">Présent</span>
+                {% elif p.statut == 'absent' %}
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-50 text-red-600 font-semibold text-xs">Absent</span>
+                {% elif p.statut == 'absent_justifie' %}
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 text-amber-600 font-semibold text-xs">Justifié</span>
+                {% elif p.statut == 'retard' %}
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-sky-50 text-sky-600 font-semibold text-xs">Retard ({{ p.minutes_retard }}min)</span>
+                {% endif %}
+              </td>
+              <td class="px-6 py-5 text-slate-500 text-xs">{{ p.justification|default:"—" }}</td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="4" class="px-6 py-12 text-center text-slate-400">
+                Aucune présence enregistrée pour {{ eleve.full_name }}.
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% if page_obj %}
+      {% include "components/navigation/pagination.html" %}
+    {% endif %}
+  </section>
+
+{% endblock %}
+
+{% block extra_scripts %}
+  <script>lucide.createIcons();</script>
+{% endblock %}

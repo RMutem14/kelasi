@@ -1,0 +1,181 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Huduma\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-07-16 00:00+0000\n"
+"PO-Revision-Date: 2026-07-16 00:00+0000\n"
+"Last-Translator: \n"
+"Language-Team: Lingala\n"
+"Language: ln\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Français"
+msgstr "Lifalanse"
+
+msgid "Lingala"
+msgstr "Lingala"
+
+msgid "Administrateur"
+msgstr "Mokambi"
+
+msgid "Enseignant"
+msgstr "Mokomeli"
+
+msgid "Directeur des études"
+msgstr "Mokambi ya boyekoli"
+
+msgid "Élève"
+msgstr "Mwinda"
+
+msgid "Parent / Tuteur"
+msgstr "Baboti / Mokengeli"
+
+msgid "Présent"
+msgstr "Azwami"
+
+msgid "Absent"
+msgstr "Azali te"
+
+msgid "Absent justifié"
+msgstr "Azali te na ntina"
+
+msgid "Retard"
+msgstr "Akoma nsima"
+
+msgid "Tableau de bord"
+msgstr "Etablo ya bokambami"
+
+msgid "Mes notes"
+msgstr "Makomi na ngai"
+
+msgid "Mes bulletins"
+msgstr "Mikanda ya makomi na ngai"
+
+msgid "Mes présences"
+msgstr "Bokendi na ngai"
+
+msgid "Forum Q/R"
+msgstr "Mituna / Bibongisi"
+
+msgid "Frais de scolarité"
+msgstr "Mbongo ya boyekoli"
+
+msgid "Emploi du temps"
+msgstr "Mokanda ya ntango"
+
+msgid "Bulletins"
+msgstr "Mikanda ya makomi"
+
+msgid "Présences"
+msgstr "Bokendi"
+
+msgid "Types de frais"
+msgstr "Bikebi ya mbongo"
+
+msgid "Paiements"
+msgstr "Bofuti"
+
+msgid "Questions"
+msgstr "Mituna"
+
+msgid "Réponses"
+msgstr "Bibongisi"
+
+msgid "Ouverte"
+msgstr "Efungwami"
+
+msgid "Répondue"
+msgstr "Ebongisami"
+
+msgid "Fermée"
+msgstr "Emonwami"
+
+msgid "Scolarité"
+msgstr "Boyekoli"
+
+msgid "Examen"
+msgstr "Komeka"
+
+msgid "Laboratoire"
+msgstr "Labo"
+
+msgid "Activité parascolaire"
+msgstr "Misala ya libanda"
+
+msgid "Transport"
+msgstr "Bolandi"
+
+msgid "Internat"
+msgstr "Bofanda"
+
+msgid "Autre"
+msgstr "Ezali na nkombo"
+
+msgid "En attente"
+msgstr "Ezali kozela"
+
+msgid "Partiellement payé"
+msgstr "Efutami na ndambo"
+
+msgid "Payé"
+msgstr "Efutami"
+
+msgid "En retard"
+msgstr "Akoma nsima"
+
+msgid "Exempté"
+msgstr "Epekisami"
+
+msgid "Espèces"
+msgstr "Mbongo ya maboko"
+
+msgid "Mobile Money"
+msgstr "Mbongo na telephone"
+
+msgid "Virement bancaire"
+msgstr "Kofuta na banki"
+
+msgid "Lundi"
+msgstr "Mosala"
+
+msgid "Mardi"
+msgstr "Misi"
+
+msgid "Mercredi"
+msgstr "Mokolo ya misato"
+
+msgid "Jeudi"
+msgstr "Mokolo ya minei"
+
+msgid "Vendredi"
+msgstr "Mokolo ya mitano"
+
+msgid "Samedi"
+msgstr "Palo"
+
+msgid "Père"
+msgstr "Tata"
+
+msgid "Mère"
+msgstr "Mama"
+
+msgid "Tuteur légal"
+msgstr "Mokengeli"
+
+msgid "Oncle"
+msgstr "Ntabala"
+
+msgid "Tante"
+msgstr "Mama-ntabala"
+
+msgid "Grand-parent"
+msgstr "Baboti ya baboti"
+
+msgid "Frère aîné"
+msgstr "Ndekɔ ya mobali"
+
+msgid "Sœur aînée"
+msgstr "Ndekɔ ya mwasi"

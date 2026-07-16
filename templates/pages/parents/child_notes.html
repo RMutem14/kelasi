@@ -1,0 +1,104 @@
+{% extends "layouts/dashboard.html" %}
+{% load huduma_tags %}
+{% load static %}
+
+{% block content %}
+
+  <section class="mb-8">
+    <div class="flex items-center gap-3 mb-4">
+      <a href="{% url 'parents:dashboard' %}" class="text-sm text-slate-500 hover:text-indigo-600 flex items-center gap-1">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+        Retour
+      </a>
+    </div>
+    <p class="text-sm text-slate-500 max-w-2xl">
+      Notes de {{ eleve.full_name }} — {{ liaison.get_relation_display }}.
+    </p>
+  </section>
+
+  {# Cartes statistiques #}
+  <section class="grid sm:grid-cols-2 gap-6 mb-8">
+    {% include "components/cards/stats_card.html" with label="Total évaluations" value=stats.total icon="clipboard-list" color="indigo" footer="Notes enregistrées" %}
+    {% include "components/cards/stats_card.html" with label="Moyenne générale" value=stats.moyenne|floatformat:1 icon="trending-up" color="emerald" footer="Sur 20" %}
+  </section>
+
+  {# Tableau des notes #}
+  <section class="bg-white border border-slate-200 rounded-[28px] shadow-sm overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-left">
+        <thead class="bg-slate-50">
+          <tr class="text-sm text-slate-500">
+            <th class="px-6 py-4 font-semibold text-left">Évaluation</th>
+            <th class="px-6 py-4 font-semibold text-left">Cours</th>
+            <th class="px-6 py-4 font-semibold text-center">Note</th>
+            <th class="px-6 py-4 font-semibold text-left">Mention</th>
+            <th class="px-6 py-4 font-semibold text-left">Date</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 text-sm">
+          {% for note in notes %}
+            <tr class="hover:bg-slate-50">
+              <td class="px-6 py-5">
+                <div class="flex items-center gap-3">
+                  <span class="w-10 h-10 rounded-xl bg-indigo-100 text-indigo-700 flex items-center justify-center flex-shrink-0">
+                    <i data-lucide="file-text" class="w-5 h-5"></i>
+                  </span>
+                  <div class="min-w-0">
+                    <p class="font-bold text-slate-900 truncate">{{ note.evaluation.titre }}</p>
+                    <span class="inline-flex items-center gap-1 mt-1 px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600 font-semibold text-xs">
+                      {{ note.evaluation.get_type_display }}
+                    </span>
+                  </div>
+                </div>
+              </td>
+              <td class="px-6 py-5">
+                {% if note.evaluation.cours %}
+                  <span class="font-semibold text-slate-700">{{ note.evaluation.cours.nom }}</span>
+                {% else %}
+                  <span class="text-slate-300">—</span>
+                {% endif %}
+              </td>
+              <td class="px-6 py-5 text-center">
+                <span class="text-2xl font-extrabold tracking-tight
+                  {% if note.pourcentage >= 50 %}text-emerald-600{% elif note.pourcentage >= 40 %}text-amber-600{% else %}text-red-600{% endif %}">
+                  {{ note.valeur|floatformat:0 }}<span class="text-slate-400 font-bold">/{{ note.evaluation.sur }}</span>
+                </span>
+              </td>
+              <td class="px-6 py-5">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full
+                  {% if note.mention == 'Très bien' %}bg-emerald-50 text-emerald-700
+                  {% elif note.mention == 'Bien' %}bg-sky-50 text-sky-700
+                  {% elif note.mention == 'Passable' %}bg-amber-50 text-amber-700
+                  {% else %}bg-red-50 text-red-700{% endif %} font-semibold text-xs">
+                  {{ note.mention }}
+                </span>
+              </td>
+              <td class="px-6 py-5 text-slate-500">
+                {{ note.date_saisie|date:"d/m/Y" }}
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="5" class="px-6 py-12">
+                <div class="flex flex-col items-center justify-center text-center py-8 px-6">
+                  <div class="w-20 h-20 rounded-3xl bg-slate-50 border border-slate-100 flex items-center justify-center mb-5">
+                    <i data-lucide="clipboard-list" class="w-9 h-9 text-slate-400"></i>
+                  </div>
+                  <h3 class="text-lg font-bold text-slate-900 mb-1.5">Aucune note pour le moment</h3>
+                  <p class="text-sm text-slate-500 max-w-md">
+                    Les notes de {{ eleve.full_name }} apparaîtront ici dès que les enseignants les auront saisies.
+                  </p>
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+{% endblock %}
+
+{% block extra_scripts %}
+  <script>lucide.createIcons();</script>
+{% endblock %}

@@ -1,0 +1,25 @@
+{% load i18n %}
+<div class="relative" x-data="{ open: false }">
+  <button @click="open = !open" class="flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-50 transition-colors">
+    <i data-lucide="globe" class="w-4 h-4"></i>
+    <span>{% if LANGUAGE_CODE == 'fr' %}FR{% elif LANGUAGE_CODE == 'ln' %}LN{% else %}{{ LANGUAGE_CODE|upper }}{% endif %}</span>
+    <i data-lucide="chevron-down" class="w-3 h-3"></i>
+  </button>
+  <div x-show="open" x-cloak @click.outside="open = false"
+       class="absolute right-0 mt-2 w-40 bg-white border border-slate-200 rounded-2xl shadow-lg py-2 z-50">
+    <form action="{% url 'set_language' %}" method="post" class="block">
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ request.get_full_path|default:'/' }}">
+      <button type="submit" name="language" value="fr"
+              class="w-full text-left px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 flex items-center gap-2">
+        <span class="w-5 h-3 bg-blue-700 rounded-sm"></span> Français
+        {% if LANGUAGE_CODE == 'fr' %}<i data-lucide="check" class="w-4 h-4 text-emerald-600 ml-auto"></i>{% endif %}
+      </button>
+      <button type="submit" name="language" value="ln"
+              class="w-full text-left px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 flex items-center gap-2">
+        <span class="w-5 h-3 bg-green-600 rounded-sm"></span> Lingala
+        {% if LANGUAGE_CODE == 'ln' %}<i data-lucide="check" class="w-4 h-4 text-emerald-600 ml-auto"></i>{% endif %}
+      </button>
+    </form>
+  </div>
+</div>

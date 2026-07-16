@@ -1,0 +1,145 @@
+{% extends "layouts/dashboard.html" %}
+{% load huduma_tags %}
+{% load static %}
+
+{% block extra_head %}
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.min.js"></script>
+  <script>
+    pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.worker.min.js";
+  </script>
+{% endblock %}
+
+{% block content %}
+
+  <section class="mb-6">
+    <div class="flex items-center justify-between">
+      <div>
+        <h1 class="text-2xl font-bold text-slate-900">{{ page_title }}</h1>
+        <p class="text-sm text-slate-500 mt-1">{{ page_subtitle }}</p>
+      </div>
+      <a href="{{ back_url|default:'#' }}" class="text-sm font-semibold text-slate-500 hover:text-indigo-600 flex items-center gap-1.5">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+        Retour
+      </a>
+    </div>
+  </section>
+
+  {# Toolbar #}
+  <section class="bg-white border border-slate-200 rounded-2xl shadow-sm px-4 py-3 mb-4 flex items-center justify-between gap-4">
+    <div class="flex items-center gap-2">
+      <button id="pdf-prev" class="bg-slate-100 text-slate-600 p-2 rounded-xl hover:bg-slate-200 transition-colors" title="Page précédente">
+        <i data-lucide="chevron-left" class="w-5 h-5"></i>
+      </button>
+      <span class="text-sm font-semibold text-slate-700">
+        Page <span id="pdf-current-page">1</span> / <span id="pdf-total-pages">—</span>
+      </span>
+      <button id="pdf-next" class="bg-slate-100 text-slate-600 p-2 rounded-xl hover:bg-slate-200 transition-colors" title="Page suivante">
+        <i data-lucide="chevron-right" class="w-5 h-5"></i>
+      </button>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <button id="pdf-zoom-out" class="bg-slate-100 text-slate-600 p-2 rounded-xl hover:bg-slate-200 transition-colors" title="Dézoomer">
+        <i data-lucide="zoom-out" class="w-5 h-5"></i>
+      </button>
+      <span class="text-sm font-semibold text-slate-700 min-w-[50px] text-center">
+        <span id="pdf-zoom-level">100</span>%
+      </span>
+      <button id="pdf-zoom-in" class="bg-slate-100 text-slate-600 p-2 rounded-xl hover:bg-slate-200 transition-colors" title="Zoomer">
+        <i data-lucide="zoom-in" class="w-5 h-5"></i>
+      </button>
+      <button id="pdf-download" class="bg-indigo-50 text-indigo-600 p-2 rounded-xl hover:bg-indigo-100 transition-colors" title="Télécharger">
+        <i data-lucide="download" class="w-5 h-5"></i>
+      </button>
+    </div>
+  </section>
+
+  {# Viewer #}
+  <section class="bg-slate-100 border border-slate-200 rounded-[28px] shadow-sm overflow-auto" style="height: calc(100vh - 280px);">
+    <canvas id="pdf-canvas" class="mx-auto block shadow-lg bg-white"></canvas>
+  </section>
+
+  <div id="pdf-loading" class="text-center py-12 text-slate-400">
+    <div class="inline-flex items-center gap-2">
+      <svg class="animate-spin h-5 w-5 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+      </svg>
+      Chargement du document...
+    </div>
+  </div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+(function() {
+  const pdfUrl = "{{ pdf_url }}";
+  const downloadUrl = "{{ download_url|default:pdf_url }}";
+  let pdfDoc = null;
+  let currentPage = 1;
+  let scale = 1.0;
+  const canvas = document.getElementById("pdf-canvas");
+  const ctx = canvas.getContext("2d");
+
+  function renderPage(num) {
+    pdfDoc.getPage(num).then(function(page) {
+      const viewport = page.getViewport({ scale: scale });
+      canvas.height = viewport.height;
+      canvas.width = viewport.width;
+      canvas.style.display = "block";
+
+      const renderContext = {
+        canvasContext: ctx,
+        viewport: viewport,
+      };
+      page.render(renderContext);
+      document.getElementById("pdf-current-page").textContent = num;
+    });
+  }
+
+  function loadPdf() {
+    pdfjsLib.getDocument(pdfUrl).promise.then(function(doc) {
+      pdfDoc = doc;
+      document.getElementById("pdf-total-pages").textContent = doc.numPages;
+      document.getElementById("pdf-loading").style.display = "none";
+      renderPage(currentPage);
+    }).catch(function(err) {
+      document.getElementById("pdf-loading").innerHTML =
+        '<p class="text-red-500 font-semibold">Erreur de chargement du PDF.</p>';
+    });
+  }
+
+  document.getElementById("pdf-prev").addEventListener("click", function() {
+    if (currentPage <= 1) return;
+    currentPage--;
+    renderPage(currentPage);
+  });
+
+  document.getElementById("pdf-next").addEventListener("click", function() {
+    if (!pdfDoc || currentPage >= pdfDoc.numPages) return;
+    currentPage++;
+    renderPage(currentPage);
+  });
+
+  document.getElementById("pdf-zoom-in").addEventListener("click", function() {
+    scale = Math.min(scale + 0.25, 3.0);
+    document.getElementById("pdf-zoom-level").textContent = Math.round(scale * 100);
+    renderPage(currentPage);
+  });
+
+  document.getElementById("pdf-zoom-out").addEventListener("click", function() {
+    scale = Math.max(scale - 0.25, 0.5);
+    document.getElementById("pdf-zoom-level").textContent = Math.round(scale * 100);
+    renderPage(currentPage);
+  });
+
+  document.getElementById("pdf-download").addEventListener("click", function() {
+    window.location.href = downloadUrl;
+  });
+
+  loadPdf();
+})();
+</script>
+<script>lucide.createIcons();</script>
+{% endblock %}

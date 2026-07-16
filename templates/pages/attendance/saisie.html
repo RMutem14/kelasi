@@ -1,0 +1,106 @@
+{% extends "layouts/dashboard.html" %}
+{% load huduma_tags %}
+{% load static %}
+
+{% block content %}
+
+  <section class="mb-8">
+    <p class="text-sm text-slate-500 max-w-2xl">
+      Sélectionnez une classe, un cours et une date pour saisir les présences.
+      Les modifications sont enregistrées en temps réel via HTMX.
+    </p>
+  </section>
+
+  {# Filtres #}
+  <section class="bg-white border border-slate-200 rounded-[28px] shadow-sm p-6 mb-8">
+    <form method="get" action="{% url 'attendance:saisie' %}" class="flex flex-col sm:flex-row gap-4 items-end">
+      <div class="flex-1 w-full">
+        <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Classe</label>
+        <select name="classe" class="w-full bg-white border border-slate-200 rounded-2xl px-4 py-3 text-sm focus:border-indigo-500 outline-none" onchange="this.form.submit()">
+          <option value="">— Sélectionner —</option>
+          {% for c in classes %}
+            <option value="{{ c.pk }}" {% if active_classe == c.pk|stringformat:"s" %}selected{% endif %}>{{ c.nom }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      {% if cours_list %}
+      <div class="flex-1 w-full">
+        <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Cours</label>
+        <select name="cours" class="w-full bg-white border border-slate-200 rounded-2xl px-4 py-3 text-sm focus:border-indigo-500 outline-none" onchange="this.form.submit()">
+          <option value="">— Sélectionner —</option>
+          {% for c in cours_list %}
+            <option value="{{ c.pk }}" {% if active_cours == c.pk|stringformat:"s" %}selected{% endif %}>{{ c.nom }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      {% endif %}
+
+      <div class="flex-1 w-full">
+        <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Date</label>
+        <input type="date" name="date" value="{{ active_date|default:'' }}"
+               class="w-full bg-white border border-slate-200 rounded-2xl px-4 py-3 text-sm focus:border-indigo-500 outline-none"
+               onchange="this.form.submit()">
+      </div>
+
+      {% if cours_list %}
+      <button type="submit"
+              class="bg-indigo-600 text-white px-6 py-3 rounded-2xl font-bold text-sm hover:bg-indigo-700 flex items-center gap-2 transition-colors whitespace-nowrap">
+        <i data-lucide="check-square" class="w-4 h-4"></i>
+        Afficher
+      </button>
+      {% endif %}
+    </form>
+  </section>
+
+  {# Tableau de saisie #}
+  {% if eleves and active_cours and active_date %}
+  <section class="bg-white border border-slate-200 rounded-[28px] shadow-sm overflow-hidden">
+    <div class="px-6 py-4 border-b border-slate-100">
+      <h2 class="font-bold text-slate-900 text-lg">
+        {{ eleves|length }} élève(s) — {{ active_date|date:"d/m/Y" }}
+      </h2>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full text-left">
+        <thead class="bg-slate-50">
+          <tr class="text-sm text-slate-500">
+            <th class="px-6 py-4 font-semibold text-left">Élève</th>
+            <th class="px-6 py-4 font-semibold text-center">Présent</th>
+            <th class="px-6 py-4 font-semibold text-center">Absent</th>
+            <th class="px-6 py-4 font-semibold text-center">Absent justifié</th>
+            <th class="px-6 py-4 font-semibold text-center">Retard</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 text-sm" id="attendance-rows">
+          {% for eleve in eleves %}
+            <tr id="row-{{ eleve.pk }}" class="hover:bg-slate-50">
+              {% include "attendance/_presence_row.html" with eleve=eleve presence=presences_map|get_item:eleve.pk %}
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+  {% elif active_classe and not active_cours %}
+    <div class="bg-white border border-slate-200 rounded-[28px] shadow-sm p-12 text-center">
+      <p class="text-slate-400">Sélectionnez un cours et une date pour afficher les élèves.</p>
+    </div>
+  {% elif not active_classe %}
+    <div class="bg-white border border-slate-200 rounded-[28px] shadow-sm p-12 text-center">
+      <p class="text-slate-400">Sélectionnez une classe pour commencer.</p>
+    </div>
+  {% endif %}
+
+  <div class="flex justify-end mt-6">
+    <a href="{% url 'attendance:history' %}" class="text-sm font-semibold text-indigo-600 hover:text-indigo-700 flex items-center gap-1.5">
+      <i data-lucide="history" class="w-4 h-4"></i>
+      Historique des présences
+    </a>
+  </div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+  <script>lucide.createIcons();</script>
+{% endblock %}

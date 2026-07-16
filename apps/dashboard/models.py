@@ -1,3 +1,1 @@
-from django.db import models
-
-# Create your models here.
+# This app has no models — views only.

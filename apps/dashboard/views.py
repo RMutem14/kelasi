@@ -9,8 +9,8 @@ Vues du tableau de bord et pages diverses.
 from django.shortcuts import redirect
 from django.views.generic import TemplateView
 
-from apps.accounts.enums import UserRole, ROLE_SHORT_LABELS, ROLE_ICONS
-from apps.core.constants import DocumentStatus, STATUS_COLOR_MAP
+from apps.accounts.enums import UserRole
+from apps.core.constants import DocumentStatus
 
 
 # ------------------------------------------------------------
@@ -22,6 +22,7 @@ ROLE_DASHBOARD_TEMPLATES = {
     UserRole.ENSEIGNANT: "pages/dashboard/enseignant.html",
     UserRole.DIRECTEUR_ETUDES: "pages/dashboard/directeur.html",
     UserRole.ELEVE: "pages/dashboard/eleve.html",
+    UserRole.PARENT: "pages/parents/dashboard.html",
 }
 
 
@@ -38,7 +39,7 @@ class ProfileView(TemplateView):
         if user.role == UserRole.ENSEIGNANT:
             from apps.pedagogy.models import DocumentPedagogique
             from apps.marketplace.models import Resource, Order
-            from apps.core.constants import DocumentStatus, PublicationStatus
+            from apps.core.constants import DocumentStatus
             context["user_stats"] = {
                 "documents": DocumentPedagogique.objects.filter(auteur=user).count(),
                 "documents_valides": DocumentPedagogique.objects.filter(auteur=user, statut=DocumentStatus.VALIDE).count(),
@@ -168,6 +169,7 @@ class DashboardHomeView(TemplateView):
             UserRole.ENSEIGNANT: "Votre travail pédagogique et votre boutique.",
             UserRole.DIRECTEUR_ETUDES: "Consultez les classes et les cours, validez les documents pédagogiques.",
             UserRole.ELEVE: "Vos ressources, achats et notes.",
+            UserRole.PARENT: "Suivez la scolarité de vos enfants.",
         }
         return subtitles.get(role, "Bienvenue sur votre espace.")
 
@@ -211,6 +213,17 @@ class DashboardHomeView(TemplateView):
                  "footer": "Dernières évaluations"},
                 {"label": "À télécharger", "value": 2, "icon": "download", "color": "amber",
                  "footer": "Nouveaux contenus disponibles"},
+            ]
+        if role == UserRole.PARENT:
+            return [
+                {"label": "Mes enfants", "value": 2, "icon": "users", "color": "indigo",
+                 "footer": "Enfants liés au compte"},
+                {"label": "Bulletins", "value": 4, "icon": "file-text", "color": "emerald",
+                 "footer": "Bulletins disponibles"},
+                {"label": "Notes récentes", "value": 12, "icon": "clipboard-list", "color": "sky",
+                 "footer": "Tous enfants confondus"},
+                {"label": "Moyenne générale", "value": "12.5", "icon": "trending-up", "color": "amber",
+                 "footer": "Moyenne globale /20"},
             ]
         return []
 
@@ -331,6 +344,15 @@ class RolesView(TemplateView):
                 "description": "Consultation des ressources gratuites, achat de ressources, téléchargement, consultation des notes.",
                 "permissions": ["Consulter ressources", "Acheter ressources", "Télécharger", "Voir ses notes"],
                 "user_count": self._count_users(UserRole.ELEVE),
+            },
+            {
+                "value": UserRole.PARENT,
+                "label": "Parent / Tuteur",
+                "icon": "users",
+                "color": "rose",
+                "description": "Suivi de la scolarité des enfants : notes, bulletins, résultats scolaires.",
+                "permissions": ["Voir notes des enfants", "Télécharger bulletins", "Consulter résultats"],
+                "user_count": self._count_users(UserRole.PARENT),
             },
         ]
         return context

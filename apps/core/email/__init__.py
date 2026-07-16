@@ -15,7 +15,7 @@ Pour activer Brevo :
 """
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import List, Optional
+from typing import List
 
 
 @dataclass

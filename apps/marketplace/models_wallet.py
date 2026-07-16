@@ -7,7 +7,6 @@ WithdrawalRequest : demandes de retrait vers mobile money.
 from decimal import Decimal
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from django.utils import timezone
 
 from apps.core.models.base import BaseModel
 

@@ -1,13 +1,3 @@
-"""
-Modèle utilisateur personnalisé Huduma.
-
-Hérite de ``AbstractBaseUser`` + ``PermissionsMixin`` (et non
-``AbstractUser``) pour contourner le conflit de clé primaire entre
-l'AutoField de Django et l'UUID de notre ``BaseModel``.
-
-Identifiant principal : email (pas de username).
-Clé primaire : UUID héritée de BaseModel.
-"""
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -18,22 +8,6 @@ from apps.core.models.base import BaseModel
 
 
 class User(AbstractBaseUser, PermissionsMixin, BaseModel):
-    """
-    Utilisateur Huduma.
-
-    Champs :
-    - email : identifiant unique (USERNAME_FIELD)
-    - first_name / last_name : nom et prénom
-    - role : un des quatre rôles (cf. UserRole)
-    - is_active : compte actif
-    - is_staff : accès à l'admin Django
-    - phone : téléphone (optionnel)
-    - avatar : image de profil (optionnel)
-
-    Propriétés pratiques : is_admin, is_teacher, is_director, is_student,
-    full_name, short_label.
-    """
-
     email = models.EmailField(
         unique=True,
         verbose_name=_("Email"),
@@ -96,10 +70,6 @@ class User(AbstractBaseUser, PermissionsMixin, BaseModel):
     def __str__(self) -> str:
         return f"{self.full_name} ({self.email})"
 
-    # ------------------------------------------------------------
-    # Propriétés de rôle
-    # ------------------------------------------------------------
-
     @property
     def is_admin(self) -> bool:
         """True si l'utilisateur est administrateur."""
@@ -120,9 +90,10 @@ class User(AbstractBaseUser, PermissionsMixin, BaseModel):
         """True si l'utilisateur est élève."""
         return self.role == UserRole.ELEVE
 
-    # ------------------------------------------------------------
-    # Propriétés d'affichage
-    # ------------------------------------------------------------
+    @property
+    def is_parent(self) -> bool:
+        """True si l'utilisateur est parent/tuteur."""
+        return self.role == UserRole.PARENT
 
     @property
     def full_name(self) -> str:
@@ -139,6 +110,7 @@ class User(AbstractBaseUser, PermissionsMixin, BaseModel):
         """Initiales pour l'avatar (2 lettres majuscules)."""
         first = (self.first_name or "").strip()
         last = (self.last_name or "").strip()
+
         if first and last:
             return f"{first[0]}{last[0]}".upper()
         if first:

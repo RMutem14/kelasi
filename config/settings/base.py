@@ -6,6 +6,8 @@ via ``.env`` (chargé par python-dotenv).
 """
 from pathlib import Path
 
+from django.utils.translation import gettext_lazy as _
+
 from dotenv import load_dotenv
 
 from apps.core.utils import get_env
@@ -38,12 +40,18 @@ INSTALLED_APPS = [
     "apps.validation",
     "apps.marketplace",
     "apps.students",
+    "apps.parents",
+    "apps.finance",
+    "apps.attendance",
+    "apps.schedule",
+    "apps.forum",
     "apps.notifications",
 ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.locale.LocaleMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -103,6 +111,18 @@ TIME_ZONE = "Africa/Kinshasa"
 USE_I18N = True
 USE_TZ = True
 
+LANGUAGES = [
+    ("fr", _("Français")),
+    ("ln", _("Lingala")),
+]
+
+LOCALE_PATHS = [
+    BASE_DIR / "locale",
+]
+
+LANGUAGE_COOKIE_NAME = "huduma_language"
+LANGUAGE_COOKIE_AGE = 31536000  # 1 an
+
 
 # Fichiers statiques et médias
 STATIC_URL = "/static/"
@@ -126,3 +146,56 @@ MARKETPLACE_PAYMENT_GATEWAY = "simulated"
 
 # Fournisseur email (console | brevo)
 EMAIL_BACKEND_PROVIDER = "console"
+
+# Cache (fallback local memory for dev/test)
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "huduma-default",
+        "TIMEOUT": 300,  # 5 minutes par défaut
+    }
+}
+
+# Session cache pour performances
+SESSION_ENGINE = "django.contrib.sessions.backends.db"
+
+# Headers de cache pour static files
+STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
+
+# Logging — configuration par défaut (console)
+# Surchargée dans prod.py pour écrire dans des fichiers.
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "[{asctime}] {levelname} {name} {message}",
+            "style": "{",
+        },
+        "simple": {
+            "format": "{levelname} {message}",
+            "style": "{",
+        },
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "verbose",
+        },
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["console"],
+            "level": "INFO",
+        },
+        "apps": {
+            "handlers": ["console"],
+            "level": "DEBUG",
+        },
+        "django.request": {
+            "handlers": ["console"],
+            "level": "WARNING",
+            "propagate": False,
+        },
+    },
+}

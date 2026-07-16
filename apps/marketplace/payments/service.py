@@ -13,10 +13,7 @@ Pour passer à un paiement réel :
 2. Implémenter les méthodes initiate_payment/verify_payment dans la classe
 3. Créer un webhook view qui appelle PaymentService.verify_and_confirm()
 """
-from django.utils import timezone
-from django.conf import settings
-
-from apps.marketplace.models import Order, Resource
+from apps.marketplace.models import Order
 from apps.marketplace.payments.gateways import get_payment_gateway, PaymentResult
 from apps.marketplace.models import Transaction
 from apps.core.constants import OrderStatus

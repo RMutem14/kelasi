@@ -1,0 +1,181 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Huduma\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-07-16 00:00+0000\n"
+"PO-Revision-Date: 2026-07-16 00:00+0000\n"
+"Last-Translator: \n"
+"Language-Team: French\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+msgid "Français"
+msgstr "Français"
+
+msgid "Lingala"
+msgstr "Lingala"
+
+msgid "Administrateur"
+msgstr "Administrateur"
+
+msgid "Enseignant"
+msgstr "Enseignant"
+
+msgid "Directeur des études"
+msgstr "Directeur des études"
+
+msgid "Élève"
+msgstr "Élève"
+
+msgid "Parent / Tuteur"
+msgstr "Parent / Tuteur"
+
+msgid "Présent"
+msgstr "Présent"
+
+msgid "Absent"
+msgstr "Absent"
+
+msgid "Absent justifié"
+msgstr "Absent justifié"
+
+msgid "Retard"
+msgstr "Retard"
+
+msgid "Tableau de bord"
+msgstr "Tableau de bord"
+
+msgid "Mes notes"
+msgstr "Mes notes"
+
+msgid "Mes bulletins"
+msgstr "Mes bulletins"
+
+msgid "Mes présences"
+msgstr "Mes présences"
+
+msgid "Forum Q/R"
+msgstr "Forum Q/R"
+
+msgid "Frais de scolarité"
+msgstr "Frais de scolarité"
+
+msgid "Emploi du temps"
+msgstr "Emploi du temps"
+
+msgid "Bulletins"
+msgstr "Bulletins"
+
+msgid "Présences"
+msgstr "Présences"
+
+msgid "Types de frais"
+msgstr "Types de frais"
+
+msgid "Paiements"
+msgstr "Paiements"
+
+msgid "Questions"
+msgstr "Questions"
+
+msgid "Réponses"
+msgstr "Réponses"
+
+msgid "Ouverte"
+msgstr "Ouverte"
+
+msgid "Répondue"
+msgstr "Répondue"
+
+msgid "Fermée"
+msgstr "Fermée"
+
+msgid "Scolarité"
+msgstr "Scolarité"
+
+msgid "Examen"
+msgstr "Examen"
+
+msgid "Laboratoire"
+msgstr "Laboratoire"
+
+msgid "Activité parascolaire"
+msgstr "Activité parascolaire"
+
+msgid "Transport"
+msgstr "Transport"
+
+msgid "Internat"
+msgstr "Internat"
+
+msgid "Autre"
+msgstr "Autre"
+
+msgid "En attente"
+msgstr "En attente"
+
+msgid "Partiellement payé"
+msgstr "Partiellement payé"
+
+msgid "Payé"
+msgstr "Payé"
+
+msgid "En retard"
+msgstr "En retard"
+
+msgid "Exempté"
+msgstr "Exempté"
+
+msgid "Espèces"
+msgstr "Espèces"
+
+msgid "Mobile Money"
+msgstr "Mobile Money"
+
+msgid "Virement bancaire"
+msgstr "Virement bancaire"
+
+msgid "Lundi"
+msgstr "Lundi"
+
+msgid "Mardi"
+msgstr "Mardi"
+
+msgid "Mercredi"
+msgstr "Mercredi"
+
+msgid "Jeudi"
+msgstr "Jeudi"
+
+msgid "Vendredi"
+msgstr "Vendredi"
+
+msgid "Samedi"
+msgstr "Samedi"
+
+msgid "Père"
+msgstr "Père"
+
+msgid "Mère"
+msgstr "Mère"
+
+msgid "Tuteur légal"
+msgstr "Tuteur légal"
+
+msgid "Oncle"
+msgstr "Oncle"
+
+msgid "Tante"
+msgstr "Tante"
+
+msgid "Grand-parent"
+msgstr "Grand-parent"
+
+msgid "Frère aîné"
+msgstr "Frère aîné"
+
+msgid "Sœur aînée"
+msgstr "Sœur aînée"

@@ -6,10 +6,10 @@ Usage :
 
 Variables d'environnement :
     GUNICORN_BIND          — adresse d'écoute (défaut : 0.0.0.0:8000)
-    GUNICORN_WORKERS       — nombre de workers (défaut : 4)
-    GUNICORN_TIMEOUT       — timeout en secondes (défaut : 60)
-    GUNICORN_MAX_REQUESTS  — max requêtes par worker avant restart (défaut : 1000)
-    GUNICORN_LOG_LEVEL     — niveau de log (défaut : info)
+    GUNICORN_WORKERS       — nombre de workers
+    GUNICORN_TIMEOUT       — timeout en secondes
+    GUNICORN_MAX_REQUESTS  — max requêtes par worker avant restart
+    GUNICORN_LOG_LEVEL     — niveau de log
 """
 import multiprocessing
 import os
